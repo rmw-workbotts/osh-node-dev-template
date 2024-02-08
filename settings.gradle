@@ -1,14 +1,16 @@
-rootProject.name = 'osh-node'
+rootProject.name = 'my-osh-node'
 def includeDir = "$rootDir/include"
 def sensorDir = "$includeDir/osh-addons/sensors"
 def persistenceDir = "$includeDir/osh-addons/persistence"
 def processDir = "$includeDir/osh-addons/processing"
 def serviceDir = "$includeDir/osh-addons/services"
-
+def toolsDir = "$rootDir/tools"
 // osh-core
 gradle.ext.oshCoreDir = "$includeDir/osh-core"
 includeBuild gradle.oshCoreDir
-
+// SensorHub Test - Debugging Module
+include 'sensorhub-test'
+project(':sensorhub-test').projectDir = "$toolsDir/sensorhub-test" as File
 // osh-storage
 //include '[storage-module-name]'
 //project(':[storage-module-name]').projectDir = "$persistenceDir/[path]/[storage-module-name]" as File
@@ -20,6 +22,9 @@ includeBuild gradle.oshCoreDir
 //
 //include 'sensorhub-storage-h2'
 //project(':sensorhub-storage-h2').projectDir = "$persistenceDir/sensorhub-storage-h2" as File
+
+include 'sensorhub-driver-windowssys'
+project(':sensorhub-driver-windowssys').projectDir = "$rootDir/sensors/sensorhub-driver-windowssys" as File
 
 // osh-services
 //include '[service-name]'
@@ -46,9 +51,11 @@ includeBuild gradle.oshCoreDir
 FileTree subprojects = fileTree("$rootDir/sensors").include('**/build.gradle')
 subprojects.files.each { File f ->
     File projectFolder = f.parentFile
-    if (projectFolder != rootDir) {
-        String projectName = ':' + projectFolder.name
-        include projectName
-        project(projectName).projectDir = projectFolder
+    if(!projectFolder.name.contains("tempalte")) {
+        if (projectFolder != rootDir) {
+            String projectName = ':' + projectFolder.name
+            include projectName
+            project(projectName).projectDir = projectFolder
+        }
     }
 }

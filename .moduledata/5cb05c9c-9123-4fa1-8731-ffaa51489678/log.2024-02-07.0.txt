@@ -1,0 +1,118 @@
+2024-02-07 09:46:12.196 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 09:46:12.202 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 09:46:12.203 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 09:46:12.627 INFO  [ModuleRegistry-1] - Module STARTED
+2024-02-07 09:48:44.070 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 09:48:44.071 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 09:48:44.071 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 09:48:44.414 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 09:50:01.528 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 09:50:01.529 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 09:50:01.529 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 09:50:01.879 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 09:52:38.094 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 09:52:38.095 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 09:52:38.095 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 09:52:38.438 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 10:20:25.057 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 10:20:25.059 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 10:20:25.059 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 10:20:25.441 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 10:20:46.655 INFO  [qtp1443554864-64] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 15:10:54.620 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 15:10:54.621 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 15:10:54.623 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 15:10:54.963 INFO  [ModuleRegistry-1] - Module STARTED
+2024-02-07 15:11:11.429 INFO  [qtp61663829-67] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 15:11:21.125 INFO  [qtp61663829-65] - New UI action: Add New Module com.sample.impl.sensor.simulation.Sensor (from ip=127.0.0.1, user=admin)
+2024-02-07 15:11:26.855 INFO  [qtp61663829-34] - New UI action: Start 'New Simulated Sensor Driver' [0a0feb2e-1fee-4a67-8d96-6115f491e1f9] (from ip=127.0.0.1, user=admin)
+2024-02-07 15:13:20.058 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 15:13:20.059 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 15:13:20.060 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 15:13:20.455 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 15:13:23.702 INFO  [qtp1640852625-35] - New connection to admin UI (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:19:46.118 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 15:19:46.119 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 15:19:46.120 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 15:19:46.488 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 15:22:16.657 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 15:22:16.660 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 15:22:16.660 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 15:22:17.007 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 15:22:35.716 INFO  [qtp468788405-32] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 15:22:39.938 INFO  [qtp468788405-67] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 15:24:50.505 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 15:24:50.507 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 15:24:50.507 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 15:24:50.884 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 15:24:53.384 INFO  [qtp145235419-32] - New connection to admin UI (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:27:50.072 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 15:27:50.072 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 15:27:50.072 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 15:27:50.431 INFO  [ModuleRegistry-1] - Module STARTED
+2024-02-07 15:27:54.572 INFO  [qtp282838442-35] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 15:27:59.418 INFO  [qtp282838442-36] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=127.0.0.1, user=admin)
+2024-02-07 15:28:03.922 INFO  [qtp282838442-70] - New UI action: Start 'New Windows System Sensor' [f8b648ec-2b62-4b76-9457-b0af209988ae] (from ip=127.0.0.1, user=admin)
+2024-02-07 15:31:54.414 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 15:31:54.416 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 15:31:54.416 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 15:31:54.762 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 15:31:57.246 INFO  [qtp1521327479-31] - New connection to admin UI (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:32:01.880 INFO  [qtp1521327479-54] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:32:06.638 INFO  [qtp1521327479-45] - New UI action: Start 'New Windows System Sensor' [68db5588-f507-4df4-8a65-5757d924015c] (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:32:20.611 INFO  [qtp1521327479-32] - New UI action: Stop 'New Windows System Sensor' [68db5588-f507-4df4-8a65-5757d924015c] (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:32:29.296 INFO  [ModuleRegistry-4] - Module INITIALIZING
+2024-02-07 15:32:29.297 INFO  [ModuleRegistry-4] - Module INITIALIZED
+2024-02-07 15:32:29.298 INFO  [ModuleRegistry-4] - Module STARTING
+2024-02-07 15:32:29.640 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 15:32:32.688 INFO  [qtp1446008689-33] - New connection to admin UI (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:32:43.979 INFO  [qtp1446008689-33] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:32:50.098 INFO  [qtp1446008689-54] - New UI action: Start 'New Windows System Sensor' [dc28fe9c-43a0-4b39-89b0-3660594c2215] (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:35:50.068 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 15:35:50.069 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 15:35:50.069 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 15:35:50.447 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 15:35:55.528 INFO  [qtp1221362163-33] - New connection to admin UI (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:36:01.729 INFO  [qtp1221362163-33] - New connection to admin UI (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:36:06.181 INFO  [qtp1221362163-43] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 15:36:09.802 INFO  [qtp1221362163-34] - New UI action: Start 'New Windows System Sensor' [25101ab8-00b8-42f0-acc4-3fd6c89bf139] (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 23:09:24.015 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 23:09:24.018 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 23:09:24.019 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 23:09:24.399 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 23:09:30.704 INFO  [qtp1815564174-33] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 23:09:37.275 INFO  [qtp1815564174-32] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=127.0.0.1, user=admin)
+2024-02-07 23:09:41.530 INFO  [qtp1815564174-54] - New UI action: Start 'New Windows System Sensor' [08ef3a47-5bb9-43e4-96a8-9c32572d56cf] (from ip=127.0.0.1, user=admin)
+2024-02-07 23:11:04.000 INFO  [qtp1815564174-34] - New UI action: Stop 'New Windows System Sensor' [08ef3a47-5bb9-43e4-96a8-9c32572d56cf] (from ip=127.0.0.1, user=admin)
+2024-02-07 23:13:40.231 INFO  [ModuleRegistry-1] - Module INITIALIZING
+2024-02-07 23:13:40.232 INFO  [ModuleRegistry-1] - Module INITIALIZED
+2024-02-07 23:13:40.233 INFO  [ModuleRegistry-1] - Module STARTING
+2024-02-07 23:13:40.702 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 23:13:45.150 INFO  [qtp339691652-33] - New connection to admin UI (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 23:13:50.618 INFO  [qtp339691652-56] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 23:13:55.123 INFO  [qtp339691652-45] - New UI action: Start 'New Windows System Sensor' [23d1a9b6-8ed7-4c83-8717-b1ef9288b967] (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 23:14:19.707 INFO  [qtp339691652-33] - New UI action: Stop 'New Windows System Sensor' [23d1a9b6-8ed7-4c83-8717-b1ef9288b967] (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 23:20:57.970 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 23:20:57.978 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 23:20:57.978 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 23:20:58.328 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 23:21:04.177 INFO  [qtp1547178998-32] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 23:21:09.114 INFO  [qtp1547178998-57] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=127.0.0.1, user=admin)
+2024-02-07 23:21:13.621 INFO  [qtp1547178998-31] - New UI action: Start 'New Windows System Sensor' [745791b9-2a20-4928-8cb7-8819032a7052] (from ip=127.0.0.1, user=admin)
+2024-02-07 23:22:47.289 INFO  [qtp1547178998-32] - New UI action: Stop 'New Windows System Sensor' [745791b9-2a20-4928-8cb7-8819032a7052] (from ip=127.0.0.1, user=admin)
+2024-02-07 23:33:09.337 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 23:33:09.337 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 23:33:09.339 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 23:33:09.681 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 23:33:25.476 INFO  [qtp336221074-31] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 23:33:27.590 INFO  [qtp336221074-34] - New connection to admin UI (from ip=127.0.0.1, user=admin)
+2024-02-07 23:33:33.088 INFO  [qtp336221074-55] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=127.0.0.1, user=admin)
+2024-02-07 23:33:38.642 INFO  [qtp336221074-35] - New UI action: Start 'New Windows System Sensor' [f69d5c0e-017e-4902-be06-415c59f80e1e] (from ip=127.0.0.1, user=admin)
+2024-02-07 23:34:20.488 INFO  [ModuleRegistry-3] - Module INITIALIZING
+2024-02-07 23:34:20.489 INFO  [ModuleRegistry-3] - Module INITIALIZED
+2024-02-07 23:34:20.490 INFO  [ModuleRegistry-3] - Module STARTING
+2024-02-07 23:34:20.868 INFO  [ModuleRegistry-2] - Module STARTED
+2024-02-07 23:34:22.834 INFO  [qtp1791624238-36] - New connection to admin UI (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 23:34:28.949 INFO  [qtp1791624238-53] - New UI action: Add New Module com.sample.impl.sensor.windowssys.Sensor (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 23:34:33.614 INFO  [qtp1791624238-45] - New UI action: Start 'New Windows System Sensor' [f10bb255-c105-43a9-9d84-67f7069563dd] (from ip=[0:0:0:0:0:0:0:1], user=admin)
+2024-02-07 23:41:04.803 INFO  [qtp1791624238-53] - New UI action: Stop 'New Windows System Sensor' [f10bb255-c105-43a9-9d84-67f7069563dd] (from ip=[0:0:0:0:0:0:0:1], user=admin)

@@ -1,0 +1,16 @@
+2024-01-29 17:10:37.383 INFO  [ModuleRegistry-1] - Module INITIALIZING
+2024-01-29 17:10:37.387 INFO  [ModuleRegistry-1] - Module INITIALIZED
+2024-01-29 17:10:37.388 INFO  [ModuleRegistry-1] - Module STARTING
+2024-01-29 17:10:37.390 INFO  [ModuleRegistry-1] - Module STARTED
+2024-01-29 17:15:21.886 INFO  [ModuleRegistry-1] - Module INITIALIZING
+2024-01-29 17:15:21.888 INFO  [ModuleRegistry-1] - Module INITIALIZED
+2024-01-29 17:15:21.889 INFO  [ModuleRegistry-1] - Module STARTING
+2024-01-29 17:15:21.889 INFO  [ModuleRegistry-1] - Module STARTED
+2024-01-29 17:19:21.743 INFO  [ModuleRegistry-2] - Module INITIALIZING
+2024-01-29 17:19:21.746 INFO  [ModuleRegistry-2] - Module INITIALIZED
+2024-01-29 17:19:21.747 INFO  [ModuleRegistry-2] - Module STARTING
+2024-01-29 17:19:21.749 INFO  [ModuleRegistry-2] - Module STARTED
+2024-01-29 17:28:00.119 INFO  [ModuleRegistry-1] - Module INITIALIZING
+2024-01-29 17:28:00.123 INFO  [ModuleRegistry-1] - Module INITIALIZED
+2024-01-29 17:28:00.123 INFO  [ModuleRegistry-1] - Module STARTING
+2024-01-29 17:28:00.124 INFO  [ModuleRegistry-1] - Module STARTED
