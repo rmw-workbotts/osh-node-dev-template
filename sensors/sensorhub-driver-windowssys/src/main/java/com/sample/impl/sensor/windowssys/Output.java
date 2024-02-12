@@ -21,15 +21,15 @@ import org.sensorhub.api.data.DataEvent;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vast.swe.SWEConstants;
 import org.vast.swe.SWEHelper;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OSSession;
+import oshi.software.os.OperatingSystem;
+import oshi.util.FormatUtil;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.management.*;
-import static java.lang.management.ManagementFactory.getOperatingSystemMXBean;
+import java.time.Instant;
+import java.util.ArrayList;
 
 /**
  * Output specification and provider for {@link Sensor}.
@@ -94,21 +94,64 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
                         .definition(SWEHelper.getCfUri("Processor_#"))
                         .label("# of Processors"))
                 .addField("freeMemory", sweFactory.createQuantity()
-                        .label("Free Memory")
+                        .label("JVM Free Memory")
                         .description("Amount of Free Memory available to the the JVM")
                 )
                 .addField("totalMemory", sweFactory.createQuantity()
-                        .label("Total Memory")
+                        .label("JVM Total Memory")
                         .description("Total Amount of Memory available to the the JVM at time of call")
+                )
+                .addField("ramMUsage", sweFactory.createText()
+                        .label("Ram Usage")
+                        .description("OSHI HardwareLayer Ram use verse total available")
+
                 )
                 .addField("sysOS", sweFactory.createText()
                         .label("Operating System")
                         .description("Runtime info on machines operating system")
                 )
-                .addField("Graphics_Devices", sweFactory.createText()
-                        .label("Graphics Devices")
-                        .description("Available Graphics Devices on system")
+                .addField("manufacturer", sweFactory.createText()
+                        .label("Manufacturer")
+                        .description("OSHI getM info for computer manufacturer")
+
                 )
+                .addField("versionInfo", sweFactory.createText()
+                        .label("OS Version Info")
+                        .description("OSHI OperatingSystems version info")
+
+                )
+                .addField("graphicsDevices", sweFactory.createText()
+                        .label("Graphics Devices")
+                        .description("OSHI HardwareLayer available video output devices on system")
+                )
+                .addField("POSi1", sweFactory.createText()
+                        .label("Time Booted")
+                        .description("OSHI print OS info on last boot time for computer")
+
+                )
+                .addField("POSi2", sweFactory.createText()
+                        .label("Uptime")
+                        .description("OSHI print OS info for Time Running ")
+
+                )
+
+                .addField("bitness", sweFactory.createText()
+                        .label("Bitness")
+                        .description("OSHI OperatingSystems bit support of current OS")
+
+                )
+                .addField("users", sweFactory.createText()
+                        .label("Current Useres")
+                        .description("OSHI OperatingSystems list of logged in users")
+
+                )
+
+                .addField("diskStores", sweFactory.createText()
+                        .label("Storage Devices")
+                        .description("OSHI HardwareLayer physical storage devices")
+
+                )
+
 
 
                 .build();
@@ -193,26 +236,32 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
 
     String Environ;
     String sysOs;
-
+    oshi.SystemInfo si = new oshi.SystemInfo();
+    ArrayList<String> oshi = new ArrayList<String>();
+    HardwareAbstractionLayer hal = si.getHardware();
+    OperatingSystem os = si.getOperatingSystem();
     // Functions to call for populating Observation outputs.
 
 //    public abstract GraphicsConfiguration[] getConfigurations()
 //    {
 //
 //    }
+
+
+
+
     Rectangle virtualBounds = new Rectangle();
     private Rectangle getEnviron()
     {
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     GraphicsDevice[] gs =
             ge.getScreenDevices();
-        for (int j = 0; j < gs.length; j++) {
-        GraphicsDevice gd = gs[j];
-        GraphicsConfiguration[] gc =
-                gd.getConfigurations();
-            for (int i=0; i < gc.length; i++) {
+        for (GraphicsDevice gd : gs) {
+            GraphicsConfiguration[] gc =
+                    gd.getConfigurations();
+            for (GraphicsConfiguration graphicsConfiguration : gc) {
                 virtualBounds =
-                        virtualBounds.union(gc[i].getBounds());
+                        virtualBounds.union(graphicsConfiguration.getBounds());
             }
         }
         return virtualBounds;
@@ -237,6 +286,25 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
         double l = Runtime.getRuntime().freeMemory();
         return l;
     }
+
+    private  Object printOperatingSystem(final OperatingSystem os) {
+        oshi.add(String.valueOf(os));
+        oshi.add("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
+        oshi.add("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
+        oshi.add("Running with" + (os.isElevated() ? "" : "out") + " elevated permissions.");
+        oshi.add("Sessions:");
+        for (OSSession s : os.getSessions()) {
+            oshi.add(" " + s.toString());
+        }
+        return null;
+    }
+//    private String getHALManufac()
+//    {
+//
+//        printOperatingSystem(os);
+//
+//        return f
+//    }
 
 //public class Rectangle
 //    {
@@ -298,20 +366,55 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
                 double timestamp = System.currentTimeMillis() / 1000d;
 
 
+//                calling the os system to update oshi arraylist
+
+                printOperatingSystem(os);
+//                OperatingSystem os = si.getOperatingSystem();
+//                HardwareAbstractionLayer hal = si.getHardware();
                 processor = getProcessors();
                 memory = getMemory();
                 totalMem = getTotalMem();
                 sysOs = getOS();
-                Environ = String.valueOf(getEnviron());
-                parentSensor.getLogger().trace(String.format("processor=%4.2f, freeMem=%5.2f, totalMem=%3.1f, sysOs, Environ",
-                        processor, memory, totalMem, sysOs, Environ));
+                Environ = String.valueOf(hal.getDisplays());
+
+//                String osysOS = String.valueOf(hal.getComputerSystem());
+                String Timebooted = oshi.get(1);
+                String Uptime = oshi.get(2);
+                String Manufact= os.getManufacturer();
+                int bit = os.getBitness();
+                String User = String.valueOf(os.getSessions());
+                String Version = String.valueOf(os.getVersionInfo());
+                String Disk = String.valueOf(hal.getDiskStores());
+                String Memory2 = String.valueOf(hal.getMemory());
+//                String Specs = String.valueOf(hal.getSensors());
+
+
+
+
+                parentSensor.getLogger().trace(String.format("processor=%4.2f, freeMem=%5.2f, totalMem=%3.1f, sysOs, Environ, osysOS",
+                        processor, memory, totalMem, sysOs, Environ, Timebooted, Uptime, Manufact, bit, User, Version, Memory2 ));
 
                 dataBlock.setDoubleValue(0, timestamp);
                 dataBlock.setDoubleValue(1, processor);
                 dataBlock.setDoubleValue(2, memory);
                 dataBlock.setDoubleValue(3, totalMem);
-                dataBlock.setStringValue(4, sysOs);
-                dataBlock.setStringValue(5, Environ);
+                dataBlock.setStringValue(4, Memory2);
+                dataBlock.setStringValue(5, sysOs);
+                dataBlock.setStringValue(6, Manufact);
+                dataBlock.setStringValue(7, Version);
+                dataBlock.setStringValue(8, Environ);
+                dataBlock.setStringValue(9, Timebooted);
+                dataBlock.setStringValue(10, Uptime);
+                dataBlock.setIntValue(11, bit);
+                dataBlock.setStringValue(12, User);
+                dataBlock.setStringValue(13, Disk);
+             
+
+
+
+
+//List here for additional metrics not currently included that might have relevance in the future. os.getProcesses()
+
 
 
 
