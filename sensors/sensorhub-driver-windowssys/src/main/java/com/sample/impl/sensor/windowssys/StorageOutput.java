@@ -5,31 +5,30 @@ import org.sensorhub.api.data.DataEvent;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vast.data.SWEFactory;
-import org.vast.swe.SWEHelper;
-import oshi.hardware.HardwareAbstractionLayer;
 import org.vast.data.DataArrayImpl;
-import java.awt.*;
-import java.lang.Boolean;
-import java.util.ArrayList;
+import org.vast.swe.SWEHelper;
+import oshi.hardware.HWDiskStore;
 
-public class StorageOutput  extends AbstractSensorOutput<Sensor>{
+import java.lang.Boolean;
+import java.util.List;
+
+public class StorageOutput extends AbstractSensorOutput<Sensor> {
     private static final String DISK_SENSOR_OUTPUT_NAME = "Storage Systems info";
     private static final String SENSOR_OUTPUT_LABEL = "Storage Systems info";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "Disk Storage Metrics returned from computer system info";
     private static final Logger logger = LoggerFactory.getLogger(Output.class);
-    private ArrayList<Object> DiskCount;
-    private ArrayList<Object> ModelName;
+    private static final int MAX_NUM_TIMING_SAMPLES = 10;
+    private final long[] timingHistogram = new long[MAX_NUM_TIMING_SAMPLES];
+    private final Object histogramLock = new Object();
 
-    private ArrayList<Integer> DiskSize;
 
-    private ArrayList<Integer> DiskWrite;
 
-    private ArrayList<Object> DiskRead;
+
     oshi.SystemInfo si = new oshi.SystemInfo();
-    HardwareAbstractionLayer hal = si.getHardware();
-    String h2 = String.valueOf(hal.getDiskStores());
-    ArrayList<String> oshiH = new ArrayList<String>();
+
+
+
+
     private Boolean stopProcessing = false;
     private final Object processingLock = new Object();
     private DataArray diskStores;
@@ -38,45 +37,63 @@ public class StorageOutput  extends AbstractSensorOutput<Sensor>{
     private Thread worker1;
 
 
-    /**
-     * Constructor
-     *
-     * @param parentSensor Sensor driver providing this output
-     */
     StorageOutput(Sensor parentSensor) {
 
-        super(DISK_SENSOR_OUTPUT_NAME, parentSensor);
+        super(DISK_SENSOR_OUTPUT_NAME, parentSensor, LoggerFactory.getLogger(Output.class));
 
         logger.debug("Output created");
-    }
-
-    public void doInit() {
-
-        getLogger().debug("Initializing Output");
-
-        defineRecordStructure();
-
-
-
-        initSamplingTime();
-
-        getLogger().debug("Initializing Output Complete");
-
     }
 
 
     public void doStart() {
 
         // Instantiate a new worker thread
-        worker1 = new Thread((Runnable) this, this.name);
+        worker1 = new Thread();
 
-        // TODO: Perform other startup
+        retrieveStorage();
+
 
         logger.info("Starting worker thread: {}", worker1.getName());
 
         // Start the worker thread
         worker1.start();
+
     }
+
+    public boolean isAlive() {
+
+        return true;
+    }
+
+    @Override
+    public DataComponent getRecordDescription() {
+
+        return dataStruct;
+    }
+
+    @Override
+    public DataEncoding getRecommendedEncoding() {
+
+        return dataEncoding;
+    }
+
+    @Override
+    public double getAverageSamplingPeriod() {
+
+        long accumulator = 0;
+
+        synchronized (histogramLock) {
+
+            for (int idx = 0; idx < MAX_NUM_TIMING_SAMPLES; ++idx) {
+
+                accumulator += timingHistogram[idx];
+            }
+        }
+
+        return accumulator / (double) MAX_NUM_TIMING_SAMPLES;
+    }
+
+
     public void doStop() {
 
         synchronized (processingLock) {
@@ -86,16 +103,9 @@ public class StorageOutput  extends AbstractSensorOutput<Sensor>{
 
 
     }
+
     private void initSamplingTime() {
     }
-
-//
-//        StringBuilder finalDiskString = new StringBuilder();
-//        for (String item : oshiH)
-//        {
-//            finalDiskString.append(item).append("\n");
-//        }return finalDiskString;
-//    }
 
 
     protected void defineRecordStructure() {
@@ -105,7 +115,7 @@ public class StorageOutput  extends AbstractSensorOutput<Sensor>{
         dataStruct = sweFactory.createRecord()
                 .name(DISK_SENSOR_OUTPUT_NAME)
                 .updatable(true)
-                .definition(SWEHelper.getPropertyUri(DISK_SENSOR_OUTPUT_NAME))
+
                 .label(SENSOR_OUTPUT_LABEL)
                 .description(SENSOR_OUTPUT_DESCRIPTION)
                 .addField("SampleTime", sweFactory.createTime().asSamplingTimeIsoUTC().build())
@@ -113,153 +123,105 @@ public class StorageOutput  extends AbstractSensorOutput<Sensor>{
                         .label("Disk Storage Count")
                         .description("Number of returned disk drives on device")
                         .definition(SWEHelper.getPropertyUri("disk_storage_count"))
+                        .id("diskStorageCount")
                 )
                 .addField("diskStorageArray", sweFactory.createArray()
                         .label("Disk Storage Entries")
                         .description("OSHI call for DiskStores- all storage devices on box that executes build")
-                        .withVariableSize("diskStorageArray")
+                        .withVariableSize("diskStorageCount")
                         .withElement("diskStorage", sweFactory.createRecord()
                                 .label("Disk Storage")
                                 .description("Disk Storage Device found on box")
-                                .definition(SWEHelper.getPropertyUri("disk_storage_device"))
+                                .definition(SWEHelper.getPropertyUri("disk_storage"))
+
                                 .addField("storageDeviceNumber", sweFactory.createText()
                                         .label("Device Number")
                                         .description("Number assigned to disk device.")
-                                        .definition(SWEHelper.getPropertyUri(""))
+                                        .definition(SWEHelper.getPropertyUri("storage_dev_number"))
                                 )
-                                .addField("modelName",sweFactory.createText()
+                                .addField("modelName", sweFactory.createText()
                                         .label("Device Model")
                                         .description("Model of Disk Device.")
-                                        .definition(SWEHelper.getPropertyUri(""))
+                                        .definition(SWEHelper.getPropertyUri("device_model"))
                                 )
-                                .addField("diskSize",sweFactory.createQuantity()
+                                .addField("diskSize", sweFactory.createQuantity()
                                         .label("Device Size")
                                         .description("Size of Disk Device.")
-                                        .definition(SWEHelper.getPropertyUri(""))
+                                        .definition(SWEHelper.getPropertyUri("device_size"))
                                 )
-                                .addField("diskRead",sweFactory.createQuantity()
+                                .addField("diskRead", sweFactory.createQuantity()
                                         .label("Device Read Size")
                                         .description("Size of Disk Read GIB")
-                                        .definition(SWEHelper.getPropertyUri(""))
+                                        .definition(SWEHelper.getPropertyUri("device_read_size"))
                                 )
-                                .addField("diskWrite", sweFactory.createText()
+                                .addField("diskWrite", sweFactory.createQuantity()
                                         .label("Device Write Size")
                                         .description("Size of Disk Write GIB")
-                                        .definition(SWEHelper.getPropertyUri(""))
+                                        .definition(SWEHelper.getPropertyUri("device_write_size"))
                                 )
                         ))
-
-
-
-
-
-
-
-
-
-
 
 
                 .build();
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
     }
-    private ArrayList printStorageSpace() {
-        String[] parts = h2.split(":");
 
-        oshiH.clear();
+    public void doInit() {
 
-        for (String part : parts) {
-            oshiH.add(part);
-        }
-            return oshiH;}
-    private ArrayList getDiskNum(){
-        for (int i=0; i < printStorageSpace().size();) {
-            DiskCount.add(printStorageSpace().get(i));
-            i = i +7;
-        }
-        return DiskCount;
-    }
-    private ArrayList getModelName(){
-        for (int i=1; i < printStorageSpace().size();) {
-            DiskCount.add(printStorageSpace().get(i));
-            i = i +7;
-        }
-        return DiskCount;
-    }
+        getLogger().debug("Initializing Output");
 
-    private ArrayList getDiskSize(){
-        for (int i=3; i < printStorageSpace().size();) {
-            DiskCount.add(printStorageSpace().get(i));
-            i = i +7;
-        }
-        return DiskCount;
-    }
+        defineRecordStructure();
 
-    private ArrayList getDiskRead(){
-        for (int i=4; i < printStorageSpace().size();) {
-            DiskCount.add(printStorageSpace().get(i));
-            i = i +7;
-        }
-        return DiskCount;
-    }
 
-    private ArrayList getDiskWrite(){
-        for (int i=5; i < printStorageSpace().size();) {
-            DiskCount.add(printStorageSpace().get(i));
-            i = i +7;
-        }
-        return DiskCount;
+        initSamplingTime();
+
+        getLogger().debug("Initializing Output Complete");
+
     }
 
 
-    public void onNewMessage(Object object) {
+    public void retrieveStorage() {
+
+
+        List<HWDiskStore> diskList = si.getHardware().getDiskStores();
+
+
         defineRecordStructure();
         DataBlock dataBlock = dataStruct.createDataBlock();
+        int index = 0;
+
+        int storageCount = si.getHardware().getDiskStores().size();
+        ;
         dataStruct.setData(dataBlock);
 
-
-        ArrayList diskStoresArray = printStorageSpace();
-        int index = 0;
         dataBlock.setDoubleValue(index++, System.currentTimeMillis() / 1000.);
-
-        dataBlock.setIntValue(index++, diskStoresArray.size());
+        dataBlock.setIntValue(index++, storageCount);
 
         var diskStorageArray = ((DataArrayImpl) dataStruct.getComponent("diskStorageArray"));
         diskStorageArray.updateSize();
         dataBlock.updateAtomCount();
 
-        for (int i=0; i < diskStoresArray.size(); i++) {
+
+        for (HWDiskStore disk : diskList) {
 
 
-            dataBlock.setStringValue(index++, String.valueOf(getDiskNum().get(i)));
-            dataBlock.setStringValue(index++, String.valueOf(getModelName().get(i)));
-            dataBlock.setStringValue(index++, String.valueOf(getDiskSize().get(i)));
-            dataBlock.setStringValue(index++, String.valueOf(getDiskRead().get(i)));
-            dataBlock.setStringValue(index++, String.valueOf(getDiskWrite().get(i)));
+            String modelName = disk.getModel();
+            String diskName = disk.getName();
+            long diskSize = disk.getSize();
+            long readSize = disk.getReads();
+            long writeSize = disk.getWrites();
 
-
-
+            dataBlock.setStringValue(index++, modelName);
+            dataBlock.setStringValue(index++, diskName);
+            dataBlock.setLongValue(index++, diskSize);
+            dataBlock.setLongValue(index++, readSize);
+            dataBlock.setLongValue(index++, writeSize);
         }
+
         latestRecord = dataBlock;
 
         latestRecordTime = System.currentTimeMillis();
 
         eventHandler.publish(new DataEvent(latestRecordTime, StorageOutput.this, dataBlock));
-
-
-    }
-    @Override
-    public DataComponent getRecordDescription() {
-        return null;
-    }
-
-    @Override
-    public DataEncoding getRecommendedEncoding() {
-        return null;
-    }
-
-    @Override
-    public double getAverageSamplingPeriod() {
-        return 0;
     }
 }

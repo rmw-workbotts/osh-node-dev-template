@@ -45,6 +45,8 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(Output.class);
 
+    StorageOutput SDClass = new StorageOutput(parentSensor);
+
     private DataArray diskStores;
 
     private DataRecord dataStruct;
@@ -175,7 +177,7 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
 
 
 
-
+//        SDClass.defineRecordStructure();
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
 
@@ -196,6 +198,7 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
 
         // Start the worker thread
         worker.start();
+
     }
 
     /**
@@ -435,7 +438,8 @@ private String printStorageSpace() {
                 String Disk = String.valueOf(hal.getDiskStores());
                 String Memory2 = String.valueOf(hal.getMemory());
 //                String Specs = String.valueOf(hal.getSensors());
-                String Disk2 = printStorageSpace();
+
+//                SDClass.onNewMessage();
 
 
 
@@ -458,11 +462,11 @@ private String printStorageSpace() {
                 dataBlock.setIntValue(12, bit);
                 dataBlock.setStringValue(13, User);
                 dataBlock.setStringValue(14, Disk);
-                dataBlock.setStringValue(15, Disk2);
 
 
 
-             
+
+
 
 
 
