@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
  * @author Robin White
  * @since 2/5/2024
  */
-public class Sensor extends AbstractSensorModule<Config> {
+public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
-    private static final Logger logger = LoggerFactory.getLogger(Sensor.class);
+    private static final Logger logger = LoggerFactory.getLogger(SystemsInfoSensor.class);
 
-    Output output;
+    SystemsInfoOutput output;
     StorageOutput output2;
 
     @Override
@@ -45,7 +45,7 @@ public class Sensor extends AbstractSensorModule<Config> {
 
 
 
-        output = new Output(this);
+        output = new SystemsInfoOutput(this);
         output2 = new StorageOutput(this);
         addOutput(output, false);
         addOutput(output2, false);

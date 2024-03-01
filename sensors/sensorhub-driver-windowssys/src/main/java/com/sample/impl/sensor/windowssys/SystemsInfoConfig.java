@@ -17,7 +17,7 @@ import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.sensor.SensorConfig;
 
 /**
- * Configuration settings for the {@link Sensor} driver exposed via the OpenSensorHub Admin panel.
+ * Configuration settings for the {@link SystemsInfoSensor} driver exposed via the OpenSensorHub Admin panel.
  * <p>
  * Configuration settings take the form of
  * <code>
@@ -31,7 +31,7 @@ import org.sensorhub.api.sensor.SensorConfig;
  * @author your_name
  * @since date
  */
-public class Config extends SensorConfig {
+public class SystemsInfoConfig extends SensorConfig {
 
     /**
      * The unique identifier for the configured sensor (or sensor platform).

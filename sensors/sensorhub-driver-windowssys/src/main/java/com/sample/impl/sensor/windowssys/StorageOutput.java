@@ -12,11 +12,11 @@ import oshi.hardware.HWDiskStore;
 import java.lang.Boolean;
 import java.util.List;
 
-public class StorageOutput extends AbstractSensorOutput<Sensor> {
+public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private static final String DISK_SENSOR_OUTPUT_NAME = "Storage Systems info";
     private static final String SENSOR_OUTPUT_LABEL = "Storage Systems info";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "Disk Storage Metrics returned from computer system info";
-    private static final Logger logger = LoggerFactory.getLogger(Output.class);
+    private static final Logger logger = LoggerFactory.getLogger(SystemsInfoOutput.class);
     private static final int MAX_NUM_TIMING_SAMPLES = 10;
     private final long[] timingHistogram = new long[MAX_NUM_TIMING_SAMPLES];
     private final Object histogramLock = new Object();
@@ -37,9 +37,9 @@ public class StorageOutput extends AbstractSensorOutput<Sensor> {
     private Thread worker1;
 
 
-    StorageOutput(Sensor parentSensor) {
+    StorageOutput(SystemsInfoSensor parentSystemsInfoSensor) {
 
-        super(DISK_SENSOR_OUTPUT_NAME, parentSensor, LoggerFactory.getLogger(Output.class));
+        super(DISK_SENSOR_OUTPUT_NAME, parentSystemsInfoSensor, LoggerFactory.getLogger(SystemsInfoOutput.class));
 
         logger.debug("Output created");
     }

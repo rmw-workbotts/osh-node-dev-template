@@ -9,18 +9,15 @@
  for the specific language governing rights and limitations under the License.
 
  Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
-
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.windowssys;
 
-import net.opengis.OgcPropertyList;
 import net.opengis.swe.v20.*;
 import org.sensorhub.api.data.DataEvent;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vast.swe.SWEHelper;
-import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSSession;
 import oshi.software.os.OperatingSystem;
@@ -32,18 +29,19 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 /**
- * Output specification and provider for {@link Sensor}.
+ * Output specification and provider for {@link SystemsInfoSensor}.
  *
  * @author Robin_White
+ *
  * @since 2/4/2024
  */
-public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
+public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> implements Runnable {
 
     private static final String SENSOR_OUTPUT_NAME = "Systems info";
     private static final String SENSOR_OUTPUT_LABEL = "Systems info";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "Metrics returned from computer system info";
 
-    private static final Logger logger = LoggerFactory.getLogger(Output.class);
+    private static final Logger logger = LoggerFactory.getLogger(SystemsInfoOutput.class);
 
     StorageOutput SDClass = new StorageOutput(parentSensor);
 
@@ -65,11 +63,11 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
     /**
      * Constructor
      *
-     * @param parentSensor Sensor driver providing this output
+     * @param parentSystemsInfoSensor Sensor driver providing this output
      */
-    Output(Sensor parentSensor) {
+    SystemsInfoOutput(SystemsInfoSensor parentSystemsInfoSensor) {
 
-        super(SENSOR_OUTPUT_NAME, parentSensor);
+        super(SENSOR_OUTPUT_NAME, parentSystemsInfoSensor);
 
         logger.debug("Output created");
     }
@@ -167,14 +165,7 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
 //                )
 
 
-
-
-
-
                 .build();
-
-
-
 
 
 //        SDClass.defineRecordStructure();
@@ -271,32 +262,30 @@ public class Output extends AbstractSensorOutput<Sensor> implements Runnable {
 
     // Functions to call for populating Observation outputs.
 
-//    public abstract GraphicsConfiguration[] getConfigurations()
+    //    public abstract GraphicsConfiguration[] getConfigurations()
 //    {
 //
 //    }
-private String printStorageSpace() {
-    String[] parts = h2.split("\\\\");
-    oshiH.clear();
-    for (String part : parts) {
-        oshiH.add(part);
+    private String printStorageSpace() {
+        String[] parts = h2.split("\\\\");
+        oshiH.clear();
+        for (String part : parts) {
+            oshiH.add(part);
+        }
+        StringBuilder finalDiskString = new StringBuilder();
+        for (String item : oshiH) {
+            finalDiskString.append(item).append("\n");
+        }
+        return String.valueOf(finalDiskString);
     }
-    StringBuilder finalDiskString = new StringBuilder();
-    for (String item : oshiH)
-    {
-        finalDiskString.append(item).append("\n");
-    }return String.valueOf(finalDiskString);
-    }
-
-
 
 
     Rectangle virtualBounds = new Rectangle();
-    private Rectangle getEnviron()
-    {
-    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    GraphicsDevice[] gs =
-            ge.getScreenDevices();
+
+    private Rectangle getEnviron() {
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] gs =
+                ge.getScreenDevices();
         for (GraphicsDevice gd : gs) {
             GraphicsConfiguration[] gc =
                     gd.getConfigurations();
@@ -307,33 +296,29 @@ private String printStorageSpace() {
         }
         return virtualBounds;
     }
-//     private String getFinalDiskString()
-//     {
-//        String l = printStorageSpace();
-//        return l;
-//     }
-    private String getOS()
-    {
+
+
+    private String getOS() {
         String l = System.getProperty("os.name").toLowerCase();
         return l;
     }
-    private double getTotalMem()
-    {
+
+    private double getTotalMem() {
         double l = Runtime.getRuntime().totalMemory();
         return l;
     }
-    private double getProcessors()
-    {
-       double l = Runtime.getRuntime().availableProcessors();
-       return l;
+
+    private double getProcessors() {
+        double l = Runtime.getRuntime().availableProcessors();
+        return l;
     }
-    private double getMemory()
-    {
+
+    private double getMemory() {
         double l = Runtime.getRuntime().freeMemory();
         return l;
     }
 
-    private  Object printOperatingSystem(final OperatingSystem os) {
+    private Object printOperatingSystem(final OperatingSystem os) {
         oshi.add(String.valueOf(os));
         oshi.add("Booted: " + Instant.ofEpochSecond(os.getSystemBootTime()));
         oshi.add("Uptime: " + FormatUtil.formatElapsedSecs(os.getSystemUptime()));
@@ -346,38 +331,6 @@ private String printStorageSpace() {
     }
 
 
-
-//    private String getHALManufac()
-//    {
-//
-//        printOperatingSystem(os);
-//
-//        return f
-//    }
-
-//public class Rectangle
-//    {
-//        private double length;
-//        private double width;
-//
-//        /**
-//         *  Constructor
-//         */
-//        public Rectangle(double l, double w)
-//        {
-//            length = l;
-//            width  = w;
-//        }
-//
-//        /**
-//         * The overriding toString method returns the
-//         * string containing object's length and width
-//         */
-//        public String toString()
-//        {
-//            return "Length : " + length + "\nWidth : " + width;
-//        }
-//    }
     @Override
     public void run() {
 
@@ -419,28 +372,23 @@ private String printStorageSpace() {
 
                 printOperatingSystem(os);
 
-//                OperatingSystem os = si.getOperatingSystem();
-//                HardwareAbstractionLayer hal = si.getHardware();
+
                 processor = getProcessors();
                 memory = getMemory();
                 totalMem = getTotalMem();
                 sysOs = getOS();
                 Environ = String.valueOf(hal.getDisplays());
 
-//                String osysOS = String.valueOf(hal.getComputerSystem());
+
                 String Timebooted = oshi.get(1);
                 String Uptime = oshi.get(2);
                 String Elevation = oshi.get(3);
-                String Manufact= os.getManufacturer();
+                String Manufact = os.getManufacturer();
                 int bit = os.getBitness();
                 String User = String.valueOf(os.getSessions());
                 String Version = String.valueOf(os.getVersionInfo());
                 String Disk = String.valueOf(hal.getDiskStores());
                 String Memory2 = String.valueOf(hal.getMemory());
-//                String Specs = String.valueOf(hal.getSensors());
-
-//                SDClass.onNewMessage();
-
 
 
 
@@ -464,23 +412,11 @@ private String printStorageSpace() {
                 dataBlock.setStringValue(14, Disk);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
                 latestRecord = dataBlock;
 
                 latestRecordTime = System.currentTimeMillis();
 
-                eventHandler.publish(new DataEvent(latestRecordTime, Output.this, dataBlock));
+                eventHandler.publish(new DataEvent(latestRecordTime, SystemsInfoOutput.this, dataBlock));
 
                 synchronized (processingLock) {
 
