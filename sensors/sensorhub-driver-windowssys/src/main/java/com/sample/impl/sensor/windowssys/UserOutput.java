@@ -12,7 +12,7 @@ import org.vast.data.DataArrayImpl;
 import org.vast.swe.SWEHelper;
 import oshi.software.os.OperatingSystem;
 
-public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
+public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> implements Runnable {
     private static final String USER_SENSOR_OUTPUT_NAME = "User Systems info";
     private static final String SENSOR_OUTPUT_LABEL = "User Systems info";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "User Account Metrics returned from computer system info";
@@ -45,9 +45,8 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     public void doStart() {
 
         // Instantiate a new worker thread
-        worker1 = new Thread();
-
-        retrieveStorage();
+//        Runnable task = this::run;
+        worker1 = new Thread(this, this.name);
 
 
         logger.info("Starting worker thread: {}", worker1.getName());
@@ -169,8 +168,8 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     }
 
 
-    public void retrieveStorage() {
-        System.out.println(os.getSessions());
+    public void run() {
+
         int setCount = 0;
         boolean processSets = true;
 

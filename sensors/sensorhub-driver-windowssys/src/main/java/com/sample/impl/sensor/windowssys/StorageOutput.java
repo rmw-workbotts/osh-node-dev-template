@@ -12,7 +12,7 @@ import oshi.hardware.HWDiskStore;
 import java.lang.Boolean;
 import java.util.List;
 
-public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
+public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> implements Runnable{
     private static final String DISK_SENSOR_OUTPUT_NAME = "Storage Systems info";
     private static final String SENSOR_OUTPUT_LABEL = "Storage Systems info";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "Disk Storage Metrics returned from computer system info";
@@ -44,9 +44,8 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     public void doStart() {
 
         // Instantiate a new worker thread
-        worker1 = new Thread();
-
-        retrieveStorage();
+//        Runnable task =  this::run;
+        worker1 = new Thread(this,this.name);
 
 
         logger.info("Starting worker thread: {}", worker1.getName());
@@ -180,7 +179,7 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     }
 
 
-    public void retrieveStorage() {
+    public void run() {
         int setCount = 0;
         boolean processSets = true;
 
@@ -223,7 +222,7 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
                 ;
                 dataStruct.setData(dataBlock);
 
-                dataBlock.setDoubleValue(index++, System.currentTimeMillis() / 1000.);
+                dataBlock.setDoubleValue(index++, timestamp);
                 dataBlock.setIntValue(index++, storageCount);
 
                 var diskStorageArray = ((DataArrayImpl) dataStruct.getComponent("diskStorageArray"));
@@ -260,17 +259,17 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
             }
 
 
-    } catch (Exception e) {
+        } catch (Exception e) {
 
-        logger.error("Error in worker thread: {}", Thread.currentThread().getName(), e);
+            logger.error("Error in worker thread: {}", Thread.currentThread().getName(), e);
 
-    } finally {
+        } finally {
 
-        // Reset the flag so that when driver is restarted loop thread continues
-        // until doStop called on the output again
-        stopProcessing = false;
+            // Reset the flag so that when driver is restarted loop thread continues
+            // until doStop called on the output again
+            stopProcessing = false;
 
-        logger.debug("Terminating worker thread: {}", this.name);
-    }
+            logger.debug("Terminating worker thread: {}", this.name);
+        }
     }
 }
