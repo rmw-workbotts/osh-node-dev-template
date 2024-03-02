@@ -22,11 +22,7 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private final Object histogramLock = new Object();
 
 
-
-
     oshi.SystemInfo si = new oshi.SystemInfo();
-
-
 
 
     private Boolean stopProcessing = false;
@@ -62,7 +58,7 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
 
     public boolean isAlive() {
 
-        return true;
+        return worker1.isAlive();
     }
 
     @Override
@@ -146,16 +142,20 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
                                 )
                                 .addField("diskSize", sweFactory.createQuantity()
                                         .label("Device Size")
+                                        .uomCode("B")
                                         .description("Size of Disk Device.")
                                         .definition(SWEHelper.getPropertyUri("device_size"))
+
                                 )
                                 .addField("diskRead", sweFactory.createQuantity()
                                         .label("Device Read Size")
                                         .description("Size of Disk Read GIB")
+                                        .uomCode("GB")
                                         .definition(SWEHelper.getPropertyUri("device_read_size"))
                                 )
                                 .addField("diskWrite", sweFactory.createQuantity()
                                         .label("Device Write Size")
+                                        .uomCode("GB")
                                         .description("Size of Disk Write GIB")
                                         .definition(SWEHelper.getPropertyUri("device_write_size"))
                                 )
@@ -181,47 +181,96 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
 
 
     public void retrieveStorage() {
+        int setCount = 0;
+        boolean processSets = true;
+
+        long lastSetTimeMillis = System.currentTimeMillis();
+
+        try {
+            while (processSets) {
+
+                DataBlock dataBlock;
+                if (latestRecord == null) {
+
+                    dataBlock = dataStruct.createDataBlock();
+
+                } else {
+
+                    dataBlock = latestRecord.renew();
+                }
+                synchronized (histogramLock) {
+
+                    int setIndex = setCount % MAX_NUM_TIMING_SAMPLES;
+
+                    // Get a sampling time for latest set based on previous set sampling time
+                    timingHistogram[setIndex] = System.currentTimeMillis() - lastSetTimeMillis;
+
+                    // Set latest sampling time to now
+                    lastSetTimeMillis = timingHistogram[setIndex];
+                }
+
+                ++setCount;
+                double timestamp = System.currentTimeMillis() / 1000d;
+
+                List<HWDiskStore> diskList = si.getHardware().getDiskStores();
 
 
-        List<HWDiskStore> diskList = si.getHardware().getDiskStores();
+                defineRecordStructure();
+
+                int index = 0;
+
+                int storageCount = si.getHardware().getDiskStores().size();
+                ;
+                dataStruct.setData(dataBlock);
+
+                dataBlock.setDoubleValue(index++, System.currentTimeMillis() / 1000.);
+                dataBlock.setIntValue(index++, storageCount);
+
+                var diskStorageArray = ((DataArrayImpl) dataStruct.getComponent("diskStorageArray"));
+                diskStorageArray.updateSize();
+                dataBlock.updateAtomCount();
 
 
-        defineRecordStructure();
-        DataBlock dataBlock = dataStruct.createDataBlock();
-        int index = 0;
-
-        int storageCount = si.getHardware().getDiskStores().size();
-        ;
-        dataStruct.setData(dataBlock);
-
-        dataBlock.setDoubleValue(index++, System.currentTimeMillis() / 1000.);
-        dataBlock.setIntValue(index++, storageCount);
-
-        var diskStorageArray = ((DataArrayImpl) dataStruct.getComponent("diskStorageArray"));
-        diskStorageArray.updateSize();
-        dataBlock.updateAtomCount();
+                for (HWDiskStore disk : diskList) {
 
 
-        for (HWDiskStore disk : diskList) {
+                    String modelName = disk.getModel();
+                    String diskName = disk.getName();
+                    long diskSize = disk.getSize();
+                    long readSize = disk.getReads();
+                    long writeSize = disk.getWrites();
+
+                    dataBlock.setStringValue(index++, modelName);
+                    dataBlock.setStringValue(index++, diskName);
+                    dataBlock.setLongValue(index++, diskSize);
+                    dataBlock.setLongValue(index++, readSize);
+                    dataBlock.setLongValue(index++, writeSize);
+                }
+
+                latestRecord = dataBlock;
+
+                latestRecordTime = System.currentTimeMillis();
+
+                eventHandler.publish(new DataEvent(latestRecordTime, StorageOutput.this, dataBlock));
+
+                synchronized (processingLock) {
+
+                    processSets = !stopProcessing;
+                }
+            }
 
 
-            String modelName = disk.getModel();
-            String diskName = disk.getName();
-            long diskSize = disk.getSize();
-            long readSize = disk.getReads();
-            long writeSize = disk.getWrites();
+    } catch (Exception e) {
 
-            dataBlock.setStringValue(index++, modelName);
-            dataBlock.setStringValue(index++, diskName);
-            dataBlock.setLongValue(index++, diskSize);
-            dataBlock.setLongValue(index++, readSize);
-            dataBlock.setLongValue(index++, writeSize);
-        }
+        logger.error("Error in worker thread: {}", Thread.currentThread().getName(), e);
 
-        latestRecord = dataBlock;
+    } finally {
 
-        latestRecordTime = System.currentTimeMillis();
+        // Reset the flag so that when driver is restarted loop thread continues
+        // until doStop called on the output again
+        stopProcessing = false;
 
-        eventHandler.publish(new DataEvent(latestRecordTime, StorageOutput.this, dataBlock));
+        logger.debug("Terminating worker thread: {}", this.name);
+    }
     }
 }

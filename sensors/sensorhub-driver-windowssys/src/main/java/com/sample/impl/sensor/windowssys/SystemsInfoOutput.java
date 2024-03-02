@@ -29,10 +29,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 
 /**
- * Output specification and provider for {@link SystemsInfoSensor}.
- *
  * @author Robin_White
- *
  * @since 2/4/2024
  */
 public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> implements Runnable {
@@ -43,9 +40,7 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
 
     private static final Logger logger = LoggerFactory.getLogger(SystemsInfoOutput.class);
 
-    StorageOutput SDClass = new StorageOutput(parentSensor);
 
-    private DataArray diskStores;
 
     private DataRecord dataStruct;
     private DataEncoding dataEncoding;
@@ -60,11 +55,7 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
 
     private Thread worker;
 
-    /**
-     * Constructor
-     *
-     * @param parentSystemsInfoSensor Sensor driver providing this output
-     */
+
     SystemsInfoOutput(SystemsInfoSensor parentSystemsInfoSensor) {
 
         super(SENSOR_OUTPUT_NAME, parentSystemsInfoSensor);
@@ -72,10 +63,7 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
         logger.debug("Output created");
     }
 
-    /**
-     * Initializes the data structure for the output, defining the fields, their ordering,
-     * and data types.
-     */
+
     void doInit() {
 
         logger.debug("Initializing Output");
@@ -97,14 +85,18 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
                         .label("# of Processors"))
                 .addField("freeMemory", sweFactory.createQuantity()
                         .label("JVM Free Memory")
-                        .description("Amount of Free Memory available to the the JVM")
+                        .uomCode("GB")
+                        .description("Amount of Free Memory allocated to the the JVM")
                 )
                 .addField("totalMemory", sweFactory.createQuantity()
                         .label("JVM Total Memory")
+                        .uomCode("GB")
                         .description("Total Amount of Memory available to the the JVM at time of call")
                 )
                 .addField("ramMUsage", sweFactory.createText()
+
                         .label("Ram Usage")
+
                         .description("OSHI HardwareLayer RAM use physical/available")
 
                 )
@@ -122,10 +114,7 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
                         .description("OSHI OperatingSystems version info")
 
                 )
-                .addField("graphicsDevices", sweFactory.createText()
-                        .label("Graphics Devices")
-                        .description("OSHI HardwareLayer available video output devices on system")
-                )
+
                 .addField("POSi1", sweFactory.createText()
                         .label("Time Booted")
                         .description("OSHI print OS info on last boot time for computer")
@@ -142,33 +131,16 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
 
                 )
 
-                .addField("bitness", sweFactory.createText()
+                .addField("bitness", sweFactory.createQuantity()
                         .label("Bitness")
+                        .uomCode("bit")
                         .description("OSHI OperatingSystems bit support of current OS")
 
                 )
-                .addField("users", sweFactory.createText()
-                        .label("Current Users")
-                        .description("OSHI OperatingSystems list of logged in users")
-
-                )
-
-                .addField("diskStores", sweFactory.createText()
-                        .label("Storage Devices")
-                        .description("OSHI HardwareLayer physical storage devices")
-
-                )
-//                .addField("diskStores2", sweFactory.createText()
-//                        .label("Storage Devices2")
-//                        .description("OSHI HardwareLayer physical storage devices2")
-//
-//                )
 
 
                 .build();
 
-
-//        SDClass.defineRecordStructure();
 
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
 
@@ -257,45 +229,16 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
     HardwareAbstractionLayer hal = si.getHardware();
     OperatingSystem os = si.getOperatingSystem();
 
-    String h2 = String.valueOf(hal.getDiskStores());
-    ArrayList<String> oshiH = new ArrayList<String>();
 
     // Functions to call for populating Observation outputs.
 
     //    public abstract GraphicsConfiguration[] getConfigurations()
-//    {
-//
-//    }
-    private String printStorageSpace() {
-        String[] parts = h2.split("\\\\");
-        oshiH.clear();
-        for (String part : parts) {
-            oshiH.add(part);
-        }
-        StringBuilder finalDiskString = new StringBuilder();
-        for (String item : oshiH) {
-            finalDiskString.append(item).append("\n");
-        }
-        return String.valueOf(finalDiskString);
-    }
 
 
-    Rectangle virtualBounds = new Rectangle();
 
-    private Rectangle getEnviron() {
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice[] gs =
-                ge.getScreenDevices();
-        for (GraphicsDevice gd : gs) {
-            GraphicsConfiguration[] gc =
-                    gd.getConfigurations();
-            for (GraphicsConfiguration graphicsConfiguration : gc) {
-                virtualBounds =
-                        virtualBounds.union(graphicsConfiguration.getBounds());
-            }
-        }
-        return virtualBounds;
-    }
+
+
+
 
 
     private String getOS() {
@@ -391,9 +334,8 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
                 String Memory2 = String.valueOf(hal.getMemory());
 
 
-
                 parentSensor.getLogger().trace(String.format("processor=%4.2f, freeMem=%5.2f, totalMem=%3.1f, sysOs, Environ, osysOS",
-                        processor, memory, totalMem, sysOs, Environ, Timebooted, Uptime, Elevation, Manufact, bit, User, Version, Memory2));
+                        processor, memory, totalMem, sysOs, Environ, Timebooted, Uptime, Elevation, Manufact, bit, Version));
 
                 dataBlock.setDoubleValue(0, timestamp);
                 dataBlock.setDoubleValue(1, processor);
@@ -403,13 +345,10 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
                 dataBlock.setStringValue(5, sysOs);
                 dataBlock.setStringValue(6, Manufact);
                 dataBlock.setStringValue(7, Version);
-                dataBlock.setStringValue(8, Environ);
-                dataBlock.setStringValue(9, Timebooted);
-                dataBlock.setStringValue(10, Uptime);
-                dataBlock.setStringValue(11, Elevation);
-                dataBlock.setIntValue(12, bit);
-                dataBlock.setStringValue(13, User);
-                dataBlock.setStringValue(14, Disk);
+                dataBlock.setStringValue(8, Timebooted);
+                dataBlock.setStringValue(9, Uptime);
+                dataBlock.setStringValue(10, Elevation);
+                dataBlock.setIntValue(11, bit);
 
 
                 latestRecord = dataBlock;

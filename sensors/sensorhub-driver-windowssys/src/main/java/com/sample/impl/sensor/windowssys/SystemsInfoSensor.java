@@ -17,8 +17,7 @@ import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//Curently calls for output2 make the sensor break upon start. Need to test if they work with just output2, or if it is specific to output2 rather than my formating.
-//Pretty sure it's specific to output2. Something about the setup of the StorageOutput class is sending an Illegal charater in path error.
+//Currently requires java 8 or 11 due to external library dependency on oshi.
 /**
  * Sensor driver providing sensor description, output registration, initialization and shutdown of driver and outputs.
  *
@@ -31,6 +30,7 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
     SystemsInfoOutput output;
     StorageOutput output2;
+    UserOutput output3;
 
     @Override
     public void doInit() throws SensorHubException {
@@ -47,12 +47,16 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
         output = new SystemsInfoOutput(this);
         output2 = new StorageOutput(this);
+        output3 = new UserOutput(this);
         addOutput(output, false);
         addOutput(output2, false);
+        addOutput(output3, false);
+
 
 
         output.doInit();
         output2.doInit();
+        output3.doInit();
 
 
 
@@ -72,6 +76,11 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
             output2.doStart();
         }
+        if (null != output3){
+
+
+            output3.doStart();
+        }
 
     }
 
@@ -87,6 +96,11 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
 
             output2.doStop();
+        }
+        if (null != output3){
+
+
+            output3.doStop();
         }
 
 
@@ -105,6 +119,12 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
         // Determine if sensor is connected
         return output2.isAlive();
+
+    }
+    public boolean isConnected3() {
+
+        // Determine if sensor is connected
+        return output3.isAlive();
 
     }
 }
