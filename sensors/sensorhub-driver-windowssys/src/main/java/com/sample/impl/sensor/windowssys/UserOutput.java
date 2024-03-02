@@ -1,18 +1,16 @@
 package com.sample.impl.sensor.windowssys;
-import net.opengis.swe.v20.*;
 
+import net.opengis.swe.v20.DataBlock;
+import net.opengis.swe.v20.DataComponent;
+import net.opengis.swe.v20.DataEncoding;
+import net.opengis.swe.v20.DataRecord;
 import org.sensorhub.api.data.DataEvent;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vast.data.DataArrayImpl;
 import org.vast.swe.SWEHelper;
-import oshi.hardware.HWDiskStore;
-import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
-
-import java.lang.Boolean;
-import java.util.List;
 
 public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private static final String USER_SENSOR_OUTPUT_NAME = "User Systems info";
@@ -26,7 +24,6 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
 
     oshi.SystemInfo si = new oshi.SystemInfo();
     OperatingSystem os = si.getOperatingSystem();
-
 
 
     private Boolean stopProcessing = false;
@@ -43,8 +40,6 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
 
         logger.debug("Output created");
     }
-
-
 
 
     public void doStart() {
