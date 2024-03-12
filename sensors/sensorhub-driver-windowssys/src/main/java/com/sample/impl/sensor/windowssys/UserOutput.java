@@ -10,9 +10,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vast.data.DataArrayImpl;
 import org.vast.swe.SWEHelper;
+import oshi.SystemInfo;
 import oshi.software.os.OperatingSystem;
 
-public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> implements Runnable {
+import java.util.Timer;
+import java.util.TimerTask;
+
+
+
+public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private static final String USER_SENSOR_OUTPUT_NAME = "User Systems info";
     private static final String SENSOR_OUTPUT_LABEL = "User Systems info";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "User Account Metrics returned from computer system info";
@@ -20,45 +26,52 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> implemen
     private static final int MAX_NUM_TIMING_SAMPLES = 10;
     private final long[] timingHistogram = new long[MAX_NUM_TIMING_SAMPLES];
     private final Object histogramLock = new Object();
+    Timer timer = new Timer();
 
 
-    oshi.SystemInfo si = new oshi.SystemInfo();
+    SystemInfo si = new SystemInfo();
     OperatingSystem os = si.getOperatingSystem();
 
 
-    private Boolean stopProcessing = false;
+
     private final Object processingLock = new Object();
 
     private DataRecord dataStruct;
     private DataEncoding dataEncoding;
-    private Thread worker1;
+
 
 
     UserOutput(SystemsInfoSensor parentSystemsInfoSensor) {
 
-        super(USER_SENSOR_OUTPUT_NAME, parentSystemsInfoSensor, LoggerFactory.getLogger(SystemsInfoOutput.class));
+        super(USER_SENSOR_OUTPUT_NAME, parentSystemsInfoSensor);
 
         logger.debug("Output created");
     }
 
+    public void doInit() {
+
+        getLogger().debug("Initializing Output");
+
+        defineRecordStructure();
+
+
+        initSamplingTime();
+
+        getLogger().debug("Initializing Output Complete");
+
+    }
 
     public void doStart() {
 
-        // Instantiate a new worker thread
-//        Runnable task = this::run;
-        worker1 = new Thread(this, this.name);
-
-
-        logger.info("Starting worker thread: {}", worker1.getName());
-
-        // Start the worker thread
-        worker1.start();
+        completeTask();
+        System.out.println("Timertask started");
 
     }
 
     public boolean isAlive() {
 
-        return worker1.isAlive();
+        return true;
+
     }
 
     @Override
@@ -89,12 +102,13 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> implemen
         return accumulator / (double) MAX_NUM_TIMING_SAMPLES;
     }
 
-
+    //As it stands, I'm pretty sure this is causing the driver to be unable to restart from the admin panel if the sensor is stopped for any reason
     public void doStop() {
 
-        synchronized (processingLock) {
-
-            stopProcessing = true;
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+            System.out.println("Timer task stopped");
         }
 
 
@@ -154,110 +168,76 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> implemen
         dataEncoding = sweFactory.newTextEncoding(",", "\n");
     }
 
-    public void doInit() {
+    private void completeTask() {
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                synchronized (processingLock) {
+                    try {
+                        defineRecordStructure();
+                        executeDataStruct();
+                    } catch (Exception e) {
+                        logger.error("Error executing", e);
+                    }
+                }
+            }
+        };
+        timer.scheduleAtFixedRate(timerTask, 0, 10000);
+    }
 
-        getLogger().debug("Initializing Output");
+
+    public void executeDataStruct() {
+
+
+        DataBlock dataBlock;
+        dataBlock = dataStruct.createDataBlock();
+        double timestamp = System.currentTimeMillis() / 1000d;
+
 
         defineRecordStructure();
 
+        int index = 0;
 
-        initSamplingTime();
+        int userCount = os.getSessions().size();
 
-        getLogger().debug("Initializing Output Complete");
+        dataStruct.setData(dataBlock);
 
-    }
+        dataBlock.setDoubleValue(index++, timestamp);
+        dataBlock.setIntValue(index++, userCount);
 
+        var userArray = ((DataArrayImpl) dataStruct.getComponent("userArray"));
+        userArray.updateSize();
+        dataBlock.updateAtomCount();
+        int j = 0;
 
-    public void run() {
+        for (int i = 0; i < userCount; i++) {
 
-        int setCount = 0;
-        boolean processSets = true;
-
-        long lastSetTimeMillis = System.currentTimeMillis();
-
-        try {
-            while (processSets) {
-
-                DataBlock dataBlock;
-                if (latestRecord == null) {
-
-                    dataBlock = dataStruct.createDataBlock();
-
-                } else {
-
-                    dataBlock = latestRecord.renew();
-                }
-                synchronized (histogramLock) {
-
-                    int setIndex = setCount % MAX_NUM_TIMING_SAMPLES;
-
-                    // Get a sampling time for latest set based on previous set sampling time
-                    timingHistogram[setIndex] = System.currentTimeMillis() - lastSetTimeMillis;
-
-                    // Set latest sampling time to now
-                    lastSetTimeMillis = timingHistogram[setIndex];
-                }
-                double timestamp = System.currentTimeMillis() / 1000d;
-                ++setCount;
+            String[] currentUser = String.valueOf(os.getSessions()).split(",");
 
 
-                defineRecordStructure();
+            String userName = String.valueOf(currentUser[0 + j]);
+            String loginStatus = String.valueOf(currentUser[2 + j]);
+            String userRole = String.valueOf(currentUser[3 + j]);
 
-                int index = 0;
-
-                int userCount = os.getSessions().size();
-                ;
-                dataStruct.setData(dataBlock);
-
-                dataBlock.setDoubleValue(index++, System.currentTimeMillis() / 1000.);
-                dataBlock.setIntValue(index++, userCount);
-
-                var userArray = ((DataArrayImpl) dataStruct.getComponent("userArray"));
-                userArray.updateSize();
-                dataBlock.updateAtomCount();
-                int j = 0;
-
-                for (int i = 0; i < userCount; i++) {
-
-                    String[] currentUser = String.valueOf(os.getSessions()).split(",");
+            dataBlock.setStringValue(index++, userName);
+            dataBlock.setStringValue(index++, loginStatus);
+            dataBlock.setStringValue(index++, userRole);
+            j = j + 4;
 
 
-                    String userName = String.valueOf(currentUser[0 + j]);
-                    String loginStatus = String.valueOf(currentUser[2 + j]);
-                    String userRole = String.valueOf(currentUser[3 + j]);
-
-                    dataBlock.setStringValue(index++, userName);
-                    dataBlock.setStringValue(index++, loginStatus);
-                    dataBlock.setStringValue(index++, userRole);
-                    j = j + 4;
-
-
-                }
-
-                latestRecord = dataBlock;
-
-                latestRecordTime = System.currentTimeMillis();
-
-                eventHandler.publish(new DataEvent(latestRecordTime, UserOutput.this, dataBlock));
-
-                synchronized (processingLock) {
-
-                    processSets = !stopProcessing;
-                }
-            }
-
-
-        } catch (Exception e) {
-
-            logger.error("Error in worker thread: {}", Thread.currentThread().getName(), e);
-
-        } finally {
-
-            // Reset the flag so that when driver is restarted loop thread continues
-            // until doStop called on the output again
-            stopProcessing = false;
-
-            logger.debug("Terminating worker thread: {}", this.name);
         }
+
+        latestRecord = dataBlock;
+
+        latestRecordTime = System.currentTimeMillis();
+
+        eventHandler.publish(new DataEvent(latestRecordTime, UserOutput.this, dataBlock));
+
+
     }
 }
+
+
+
+
+

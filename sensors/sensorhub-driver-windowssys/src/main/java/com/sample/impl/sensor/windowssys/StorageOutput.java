@@ -11,8 +11,11 @@ import oshi.hardware.HWDiskStore;
 
 import java.lang.Boolean;
 import java.util.List;
+import java.util.TimerTask;
+import java.util.Timer;
 
-public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> implements Runnable{
+
+public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private static final String DISK_SENSOR_OUTPUT_NAME = "Storage Systems info";
     private static final String SENSOR_OUTPUT_LABEL = "Storage Systems info";
     private static final String SENSOR_OUTPUT_DESCRIPTION = "Disk Storage Metrics returned from computer system info";
@@ -20,17 +23,18 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> imple
     private static final int MAX_NUM_TIMING_SAMPLES = 10;
     private final long[] timingHistogram = new long[MAX_NUM_TIMING_SAMPLES];
     private final Object histogramLock = new Object();
+    Timer timer = new Timer();
 
 
     oshi.SystemInfo si = new oshi.SystemInfo();
 
 
-    private Boolean stopProcessing = false;
+
     private final Object processingLock = new Object();
-    private DataArray diskStores;
+
     private DataRecord dataStruct;
     private DataEncoding dataEncoding;
-    private Thread worker1;
+
 
 
     StorageOutput(SystemsInfoSensor parentSystemsInfoSensor) {
@@ -45,19 +49,14 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> imple
 
         // Instantiate a new worker thread
 //        Runnable task =  this::run;
-        worker1 = new Thread(this,this.name);
-
-
-        logger.info("Starting worker thread: {}", worker1.getName());
-
-        // Start the worker thread
-        worker1.start();
+        completeTask();
+        System.out.println("Timertask started");
 
     }
 
     public boolean isAlive() {
 
-        return worker1.isAlive();
+        return true;
     }
 
     @Override
@@ -91,9 +90,10 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> imple
 
     public void doStop() {
 
-        synchronized (processingLock) {
-
-            stopProcessing = true;
+        if (timer != null) {
+            timer.cancel();
+            timer.purge();
+            System.out.println("Timer task stopped");
         }
 
 
@@ -177,49 +177,46 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> imple
         getLogger().debug("Initializing Output Complete");
 
     }
-
-
-    public void run() {
-        int setCount = 0;
-        boolean processSets = true;
-
-        long lastSetTimeMillis = System.currentTimeMillis();
-
-        try {
-            while (processSets) {
-
-                DataBlock dataBlock;
-                if (latestRecord == null) {
-
-                    dataBlock = dataStruct.createDataBlock();
-
-                } else {
-
-                    dataBlock = latestRecord.renew();
+    private void completeTask() {
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                synchronized (processingLock) {
+                    try {
+                        defineRecordStructure();
+                        executeDataStruct();
+                    } catch (Exception e) {
+                        logger.error("Error executing", e);
+                    }
                 }
-                synchronized (histogramLock) {
+            }
+        };
+        timer.scheduleAtFixedRate(timerTask, 0, 10000);
+    }
 
-                    int setIndex = setCount % MAX_NUM_TIMING_SAMPLES;
+    public void executeDataStruct() {
+        DataBlock dataBlock;
+        dataBlock = dataStruct.createDataBlock();
+        double timestamp = System.currentTimeMillis() / 1000d;
 
-                    // Get a sampling time for latest set based on previous set sampling time
-                    timingHistogram[setIndex] = System.currentTimeMillis() - lastSetTimeMillis;
+        defineRecordStructure();
 
-                    // Set latest sampling time to now
-                    lastSetTimeMillis = timingHistogram[setIndex];
-                }
+        int index = 0;
 
-                ++setCount;
-                double timestamp = System.currentTimeMillis() / 1000d;
+
+
+
+
 
                 List<HWDiskStore> diskList = si.getHardware().getDiskStores();
 
 
                 defineRecordStructure();
 
-                int index = 0;
+
 
                 int storageCount = si.getHardware().getDiskStores().size();
-                ;
+
                 dataStruct.setData(dataBlock);
 
                 dataBlock.setDoubleValue(index++, timestamp);
@@ -246,30 +243,14 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> imple
                     dataBlock.setLongValue(index++, writeSize);
                 }
 
-                latestRecord = dataBlock;
+        latestRecord = dataBlock;
 
-                latestRecordTime = System.currentTimeMillis();
+        latestRecordTime = System.currentTimeMillis();
 
-                eventHandler.publish(new DataEvent(latestRecordTime, StorageOutput.this, dataBlock));
-
-                synchronized (processingLock) {
-
-                    processSets = !stopProcessing;
-                }
+        eventHandler.publish(new DataEvent(latestRecordTime, StorageOutput.this, dataBlock));
             }
 
 
-        } catch (Exception e) {
-
-            logger.error("Error in worker thread: {}", Thread.currentThread().getName(), e);
-
-        } finally {
-
-            // Reset the flag so that when driver is restarted loop thread continues
-            // until doStop called on the output again
-            stopProcessing = false;
-
-            logger.debug("Terminating worker thread: {}", this.name);
         }
-    }
-}
+
+
