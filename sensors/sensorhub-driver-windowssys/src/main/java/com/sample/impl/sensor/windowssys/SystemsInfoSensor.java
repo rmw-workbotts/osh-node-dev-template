@@ -31,6 +31,7 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
     SystemsInfoOutput output;
     StorageOutput output2;
     UserOutput output3;
+    Alerts output4;
 
     @Override
     public void doInit() throws SensorHubException {
@@ -48,15 +49,18 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
         output = new SystemsInfoOutput(this);
         output2 = new StorageOutput(this);
         output3 = new UserOutput(this);
+        output4 = new Alerts(this);
         addOutput(output, false);
         addOutput(output2, false);
         addOutput(output3, false);
+        addOutput(output4, false);
 
 
 
         output.doInit();
         output2.doInit();
         output3.doInit();
+        output4.doInit();
 
 
 
@@ -81,6 +85,11 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
             output3.doStart();
         }
+        if (null != output4){
+
+
+            output4.doStart();
+        }
 
     }
 
@@ -102,11 +111,16 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
             output3.doStop();
         }
+        if (null != output4){
+
+
+            output4.doStop();
+        }
 
 
 
     }
-
+// need to make all the isAlive() methods into a list or array to pass through here.
     @Override
     public boolean isConnected() {
 
@@ -115,16 +129,17 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
     }
 
-    public boolean isConnected2() {
-
-        // Determine if sensor is connected
-        return output2.isAlive();
-
-    }
-    public boolean isConnected3() {
-
-        // Determine if sensor is connected
-        return output3.isAlive();
-
-    }
+//
+//    public boolean isConnected2() {
+//
+//        // Determine if sensor is connected
+//        return output2.isAlive();
+//
+//    }
+//    public boolean isConnected3() {
+//
+//        // Determine if sensor is connected
+//        return output3.isAlive();
+//
+//    }
 }

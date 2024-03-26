@@ -27,6 +27,7 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private final long[] timingHistogram = new long[MAX_NUM_TIMING_SAMPLES];
     private final Object histogramLock = new Object();
     Timer timer = new Timer();
+    TimerTask timerTask;
 
 
     SystemInfo si = new SystemInfo();
@@ -64,6 +65,7 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     public void doStart() {
 
         completeTask();
+//        timer.scheduleAtFixedRate(timerTask, 0, 10000);
         System.out.println("Timertask started");
 
     }
@@ -108,6 +110,7 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
         if (timer != null) {
             timer.cancel();
             timer.purge();
+//            timerTask.cancel();
             System.out.println("Timer task stopped");
         }
 
@@ -169,7 +172,7 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     }
 
     private void completeTask() {
-        TimerTask timerTask = new TimerTask() {
+        timerTask = new TimerTask() {
             @Override
             public void run() {
                 synchronized (processingLock) {

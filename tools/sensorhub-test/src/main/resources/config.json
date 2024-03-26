@@ -191,6 +191,45 @@
     "moduleClass": "org.sensorhub.impl.database.system.SystemDriverDatabase",
     "name": "System Driver Database",
     "autoStart": true
+  },
+  {
+    "objClass": "org.sensorhub.impl.service.consys.ConSysApiServiceConfig",
+    "customFormats": [],
+    "security": {
+      "objClass": "org.sensorhub.api.security.SecurityConfig",
+      "enableAccessControl": false,
+      "requireAuth": false
+    },
+    "enableTransactional": false,
+    "maxResponseLimit": 100000,
+    "defaultLiveTimeout": 600.0,
+    "ogcCapabilitiesInfo": {
+      "objClass": "org.sensorhub.impl.service.ogc.OGCServiceConfig$CapabilitiesInfo",
+      "serviceProvider": {
+        "objClass": "org.vast.util.ResponsibleParty",
+        "voiceNumbers": [],
+        "faxNumbers": [],
+        "deliveryPoints": [],
+        "emails": [],
+        "hrefPresent": false
+      }
+    },
+    "enableHttpGET": true,
+    "enableHttpPOST": true,
+    "enableSOAP": true,
+    "endPoint": "/api",
+    "id": "3b57e5d5-1086-4b65-ba30-b8d54d3ed16b",
+    "moduleClass": "org.sensorhub.impl.service.consys.ConSysApiService",
+    "name": "New Connected Systems API Service",
+    "autoStart": true
+  },
+  {
+    "objClass": "com.sample.impl.sensor.windowssys.SystemsInfoConfig",
+    "serialNumber": "sensor001",
+    "lastUpdated": "2024-03-15T15:23:37.758-0500",
+    "id": "d41f7ff4-2322-4f38-9610-d083174d7407",
+    "moduleClass": "com.sample.impl.sensor.windowssys.SystemsInfoSensor",
+    "name": "New Systems Info Sensor",
+    "autoStart": false
   }
-
 ]
