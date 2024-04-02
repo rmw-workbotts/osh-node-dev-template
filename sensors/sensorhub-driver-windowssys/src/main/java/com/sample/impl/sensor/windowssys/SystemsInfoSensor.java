@@ -14,9 +14,15 @@
 package com.sample.impl.sensor.windowssys;
 
 import org.sensorhub.api.common.SensorHubException;
+import org.sensorhub.impl.module.ModuleRegistry;
 import org.sensorhub.impl.sensor.AbstractSensorModule;
+import org.sensorhub.impl.service.sos.SOSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vast.ows.sos.SOSServiceCapabilities;
+
+import java.util.Objects;
+
 //Currently requires java 8 or 11 due to external library dependency on oshi.
 /**
  * Sensor driver providing sensor description, output registration, initialization and shutdown of driver and outputs.
@@ -32,6 +38,10 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
     StorageOutput output2;
     UserOutput output3;
     Alerts output4;
+    SOSService commService = new SOSService();
+    public boolean ConfigPresent;
+
+
 
     @Override
     public void doInit() throws SensorHubException {
@@ -64,10 +74,16 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
 
 
 
+
     }
 
     @Override
     public void doStart() throws SensorHubException {
+        ModuleRegistry moduleRegistry = getParentHub().getModuleRegistry();
+
+
+        commService = moduleRegistry.getModuleByType(SOSService.class);
+
 
         if (null != output) {
 
@@ -86,6 +102,7 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
             output3.doStart();
         }
         if (null != output4){
+
 
 
             output4.doStart();

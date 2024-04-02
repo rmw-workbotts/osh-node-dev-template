@@ -5,6 +5,7 @@ import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataEncoding;
 import net.opengis.swe.v20.DataRecord;
 import org.sensorhub.api.data.DataEvent;
+import org.sensorhub.impl.module.ModuleRegistry;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
-import oshi.*;
+import org.sensorhub.api.service.ServiceConfig;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -201,7 +202,6 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 
                 dataBlock.setDoubleValue(0, timestamp);
                 dataBlock.setStringValue(1, cpuFormat);
-
 
                 latestRecord = dataBlock;
 

@@ -155,6 +155,7 @@
         "emails": [
           "admin@bobby.com"
         ],
+        "contactInstructions": "email@email.com",
         "hrefPresent": false
       }
     },
@@ -226,6 +227,7 @@
   {
     "objClass": "com.sample.impl.sensor.windowssys.SystemsInfoConfig",
     "serialNumber": "sensor001",
+    "contactInfo": "youremailhere@contact.com",
     "lastUpdated": "2024-03-15T15:23:37.758-0500",
     "id": "d41f7ff4-2322-4f38-9610-d083174d7407",
     "moduleClass": "com.sample.impl.sensor.windowssys.SystemsInfoSensor",

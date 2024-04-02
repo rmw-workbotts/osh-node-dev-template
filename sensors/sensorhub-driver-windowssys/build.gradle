@@ -1,6 +1,6 @@
 description = 'Systems Info Sensor'
 ext.details = "Driver to return Systems Information"
-version = '1.0.1'
+version = '1.0.5'
 
 
 repositories {
@@ -8,6 +8,7 @@ repositories {
 }
 dependencies {
     implementation 'org.sensorhub:sensorhub-core:' + oshCoreVersion
+    implementation('org.sensorhub:sensorhub-service-swe:' + oshCoreVersion)
 //    implementation project(':sensorhub-service-video')
 //    implementation project(':sensorhub-driver-videocam')
     testImplementation('junit:junit:4.13.1')
