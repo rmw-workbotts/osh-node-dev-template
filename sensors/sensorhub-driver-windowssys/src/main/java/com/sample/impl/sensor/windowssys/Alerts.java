@@ -7,6 +7,7 @@ import net.opengis.swe.v20.DataRecord;
 import org.sensorhub.api.data.DataEvent;
 import org.sensorhub.impl.module.ModuleRegistry;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vast.data.DataArrayImpl;
@@ -16,7 +17,12 @@ import oshi.hardware.CentralProcessor;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
 import org.sensorhub.api.service.ServiceConfig;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
+
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,6 +41,9 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
     SystemInfo si = new SystemInfo();
     OperatingSystem os = si.getOperatingSystem();
     CentralProcessor processor = si.getHardware().getProcessor();
+    Properties prop = new Properties();
+
+
 
     private static final String SENSOR_OUTPUT_NAME = "Systems info alerts";
     private static final String SENSOR_OUTPUT_LABEL = "Systems info alerts";
@@ -49,6 +58,17 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
     private Thread worker;
     private final Object processingLock = new Object();
     private int setCount = 0;
+    Properties properties = System.getProperties();
+    String alertTarget = SystemsInfoConfig.alertTarget;
+    String alertSender = SystemsInfoConfig.alertSender;
+    //TODO Set these values to generic variables and refer to this section in the ReadMe before this is publicly committed again.
+    Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication(alertSender,"password");
+        }
+    });
+
+
 
 
     Alerts(SystemsInfoSensor parentSystemsInfoSensor) {
@@ -94,6 +114,7 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 
         // Start the worker thread
         worker.start();
+        sendCPUEmail();
 
     }
     public void doStop() {
@@ -137,6 +158,57 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 
         }
         return accumulator / (double) MAX_NUM_TIMING_SAMPLES;
+
+    }
+
+
+    public void sendCPUEmail() {
+        try {
+            properties.setProperty("mail.smtp.host", "smtp.gmail.com");
+            properties.setProperty("mail.smtp.port", "587");
+            properties.setProperty("mail.smtp.auth", "true");
+            properties.setProperty("mail.smtp.starttls.enable", "true");
+
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(alertTarget);
+            message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
+
+            message.setSubject("The CPU Usage value for your box is above the threshold limit.");
+            message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
+            Transport.send(message);
+        } catch (MessagingException mex) {
+            mex.printStackTrace();
+        }
+
+    }
+    public void sendRAMEmail() {
+        try {
+
+        MimeMessage message = new MimeMessage(session);
+        message.setFrom(alertTarget);
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
+
+        message.setSubject("The RAM Usage value for your box is above the threshold limit.");
+        message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
+        Transport.send(message);
+    } catch (MessagingException mex) {
+        mex.printStackTrace();
+    }
+
+    }
+    public void sendUserEmail() {
+    try {
+
+        MimeMessage message = new MimeMessage(session);
+        message.setFrom(alertTarget);
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
+
+        message.setSubject("The User login time for your box is above the threshold limit.");
+        message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
+        Transport.send(message);
+    } catch (MessagingException mex) {
+        mex.printStackTrace();
+        }
 
     }
 

@@ -85,6 +85,7 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
         commService = moduleRegistry.getModuleByType(SOSService.class);
 
 
+
         if (null != output) {
 
             // Allocate necessary resources and start outputs

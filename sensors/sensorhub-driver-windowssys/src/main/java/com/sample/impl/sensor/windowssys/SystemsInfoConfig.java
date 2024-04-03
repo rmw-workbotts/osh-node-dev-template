@@ -39,5 +39,5 @@ public class SystemsInfoConfig extends SensorConfig {
     @DisplayInfo.Required
     @DisplayInfo(desc = "Serial number or unique identifier")
     public String serialNumber = "sensor001";
-    public String contactInfo = "youremailhere@contact.com";
-}
+    public static String alertTarget = "rmccwhite1995@gmail.com";
+    public static String alertSender = "BottsAutomatedAlert@gmail.com";}
