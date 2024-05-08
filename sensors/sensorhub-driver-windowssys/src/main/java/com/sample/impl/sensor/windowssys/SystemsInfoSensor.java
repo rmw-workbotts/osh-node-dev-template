@@ -9,7 +9,6 @@
  for the specific language governing rights and limitations under the License.
 
  Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
-
  ******************************* END LICENSE BLOCK ***************************/
 package com.sample.impl.sensor.windowssys;
 
@@ -19,11 +18,12 @@ import org.sensorhub.impl.sensor.AbstractSensorModule;
 import org.sensorhub.impl.service.sos.SOSService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vast.ows.sos.SOSServiceCapabilities;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Collections;
 
 //Currently requires java 8 or 11 due to external library dependency on oshi.
+
 /**
  * Sensor driver providing sensor description, output registration, initialization and shutdown of driver and outputs.
  *
@@ -38,9 +38,9 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
     StorageOutput output2;
     UserOutput output3;
     Alerts output4;
+    SystemsPhysicalSensor output5;
     SOSService commService = new SOSService();
     public boolean ConfigPresent;
-
 
 
     @Override
@@ -55,24 +55,23 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
         // Create and initialize output
 
 
-
         output = new SystemsInfoOutput(this);
         output2 = new StorageOutput(this);
         output3 = new UserOutput(this);
         output4 = new Alerts(this);
+        output5 = new SystemsPhysicalSensor(this);
         addOutput(output, false);
         addOutput(output2, false);
         addOutput(output3, false);
         addOutput(output4, false);
-
+        addOutput(output5, false);
 
 
         output.doInit();
         output2.doInit();
         output3.doInit();
         output4.doInit();
-
-
+        output5.doInit();
 
 
     }
@@ -85,28 +84,31 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
         commService = moduleRegistry.getModuleByType(SOSService.class);
 
 
-
         if (null != output) {
 
             // Allocate necessary resources and start outputs
             output.doStart();
 
         }
-        if (null != output2){
+        if (null != output2) {
 
 
             output2.doStart();
         }
-        if (null != output3){
+        if (null != output3) {
 
 
             output3.doStart();
         }
-        if (null != output4){
-
+        if (null != output4) {
 
 
             output4.doStart();
+        }
+        if (null != output5) {
+
+
+            output5.doStart();
         }
 
     }
@@ -119,31 +121,48 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
             output.doStop();
 
         }
-        if (null != output2){
+        if (null != output2) {
 
 
             output2.doStop();
         }
-        if (null != output3){
+        if (null != output3) {
 
 
             output3.doStop();
         }
-        if (null != output4){
+        if (null != output4) {
 
 
             output4.doStop();
         }
+        if (null != output5) {
 
+
+            output5.doStop();
+        }
 
 
     }
-// need to make all the isAlive() methods into a list or array to pass through here.
+
+    // need to make all the isAlive() methods into a list or array to pass through here.
     @Override
     public boolean isConnected() {
 
         // Determine if sensor is connected
-        return output.isAlive();
+        ArrayList<Boolean> aliveQuery = new ArrayList<>();
+        aliveQuery.add(output.isAlive());
+        aliveQuery.add(output2.isAlive());
+        aliveQuery.add(output3.isAlive());
+        aliveQuery.add(output4.isAlive());
+        aliveQuery.add(output5.isAlive());
+        if (!aliveQuery.contains(false)) {
+            return false;
+        } else {
+            return true;
+
+        }
+
 
     }
 

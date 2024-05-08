@@ -14,7 +14,20 @@
 package com.sample.impl.sensor.windowssys;
 
 import org.sensorhub.api.config.DisplayInfo;
+import org.sensorhub.api.sensor.PositionConfig;
 import org.sensorhub.api.sensor.SensorConfig;
+import org.sensorhub.api.sensor.PositionConfig.LLALocation;
+import org.sensorhub.api.sensor.PositionConfig.EulerOrientation;
+
+import javax.lang.model.type.ArrayType;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+
+
 
 /**
  * Configuration settings for the {@link SystemsInfoSensor} driver exposed via the OpenSensorHub Admin panel.
@@ -28,8 +41,8 @@ import org.sensorhub.api.sensor.SensorConfig;
  * Containing an annotation describing the setting and if applicable its range of values
  * as well as a public access variable of the given Type
  *
- * @author your_name
- * @since date
+ * @author Robin_White
+ * @since March 1st 2024
  */
 public class SystemsInfoConfig extends SensorConfig {
 
@@ -39,5 +52,29 @@ public class SystemsInfoConfig extends SensorConfig {
     @DisplayInfo.Required
     @DisplayInfo(desc = "Serial number or unique identifier")
     public String serialNumber = "sensor001";
-    public static String alertTarget = "rmccwhite1995@gmail.com";
-    public static String alertSender = "BottsAutomatedAlert@gmail.com";}
+    @DisplayInfo(desc="Camera geographic position")
+    public PositionConfig position = new PositionConfig();
+//the driver is currently only set to send emails from gmail accounts.
+    public static String alertTarget = "targetemailhere";
+    public static String alertSender = "sendingemailhere";
+
+    double lat;
+    double lon;
+    double alt;
+
+    public SystemsInfoConfig() throws NoSuchFieldException {
+    }
+
+
+
+
+    public PositionConfig.LLALocation getLocation(){ return position.location;}
+
+
+
+
+
+
+}
+
+

@@ -227,11 +227,25 @@
   {
     "objClass": "com.sample.impl.sensor.windowssys.SystemsInfoConfig",
     "serialNumber": "sensor001",
-    "contactInfo": "youremailhere@contact.com",
+    "position": {
+      "objClass": "org.sensorhub.api.sensor.PositionConfig",
+      "location": {
+        "objClass": "org.sensorhub.api.sensor.PositionConfig$LLALocation",
+        "lat": 33.495722,
+        "lon": 86.793111,
+        "alt": 0.0
+      },
+      "orientation": {
+        "objClass": "org.sensorhub.api.sensor.PositionConfig$EulerOrientation",
+        "heading": 0.0,
+        "pitch": 0.0,
+        "roll": 0.0
+      }
+    },
     "lastUpdated": "2024-03-15T15:23:37.758-0500",
     "id": "d41f7ff4-2322-4f38-9610-d083174d7407",
     "moduleClass": "com.sample.impl.sensor.windowssys.SystemsInfoSensor",
     "name": "New Systems Info Sensor",
-    "autoStart": false
+    "autoStart": true
   }
 ]

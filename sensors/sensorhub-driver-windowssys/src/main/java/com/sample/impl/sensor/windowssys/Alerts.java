@@ -5,44 +5,35 @@ import net.opengis.swe.v20.DataComponent;
 import net.opengis.swe.v20.DataEncoding;
 import net.opengis.swe.v20.DataRecord;
 import org.sensorhub.api.data.DataEvent;
-import org.sensorhub.impl.module.ModuleRegistry;
 import org.sensorhub.impl.sensor.AbstractSensorOutput;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vast.data.DataArrayImpl;
-import org.vast.swe.SWEHelper;
+import org.vast.swe.*;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
-import org.sensorhub.api.service.ServiceConfig;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 
 import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements Runnable {
 
-    // order of operations
-// deteremine required alerts
-// create structure to pull alerts from other outputs to here
-// set those alert values as local variables
-// connect this datastream to the system
-// add these observations to that datastream in a way that allows for the desired function.
-// THings to do in order to acomplish this.
-// find out how smlhelper functions in relation to all this
-// find out if the mechanizm that is sending the alert is on the node side or the java code side, or both.
+
     OSProcess cpuVal;
     SystemInfo si = new SystemInfo();
     OperatingSystem os = si.getOperatingSystem();
     CentralProcessor processor = si.getHardware().getProcessor();
+    HardwareAbstractionLayer hal = si.getHardware();
     Properties prop = new Properties();
-
 
 
     private static final String SENSOR_OUTPUT_NAME = "Systems info alerts";
@@ -61,14 +52,15 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
     Properties properties = System.getProperties();
     String alertTarget = SystemsInfoConfig.alertTarget;
     String alertSender = SystemsInfoConfig.alertSender;
-    //TODO Set these values to generic variables and refer to this section in the ReadMe before this is publicly committed again.
+    //TODO Set these values to passkey for google mail as described in readme document
     Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
         protected PasswordAuthentication getPasswordAuthentication() {
-            return new PasswordAuthentication(alertSender,"password");
+            return new PasswordAuthentication(alertSender, "google mail pass key here");
         }
     });
-
-
+    Boolean CPUemailSent = false;
+    Boolean userEmailSent = false;
+    Boolean RAMemailSent = false;
 
 
     Alerts(SystemsInfoSensor parentSystemsInfoSensor) {
@@ -95,6 +87,13 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
                         .label("Percent Usage of CPU")
                         .description("Percent Usage of the the CPU, Non-windows boxes may return above ")
                 )
+                .addField("ramUsage", sweFactory.createText()
+
+                        .label("Ram Usage")
+
+                        .description("OSHI HardwareLayer RAM use physical/available")
+
+                )
 
 
                 .build();
@@ -102,6 +101,7 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
         logger.debug("Initializing Output Complete");
 
     }
+
 
     public void doStart() {
 
@@ -114,9 +114,10 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 
         // Start the worker thread
         worker.start();
-        sendCPUEmail();
+
 
     }
+
     public void doStop() {
 
         synchronized (processingLock) {
@@ -126,6 +127,7 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 
 
     }
+
     public boolean isAlive() {
         return worker.isAlive();
 
@@ -161,67 +163,75 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 
     }
 
-
-    public void sendCPUEmail() {
-        try {
-            properties.setProperty("mail.smtp.host", "smtp.gmail.com");
-            properties.setProperty("mail.smtp.port", "587");
-            properties.setProperty("mail.smtp.auth", "true");
-            properties.setProperty("mail.smtp.starttls.enable", "true");
-
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(alertTarget);
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
-
-            message.setSubject("The CPU Usage value for your box is above the threshold limit.");
-            message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
-            Transport.send(message);
-        } catch (MessagingException mex) {
-            mex.printStackTrace();
-        }
-
-    }
-    public void sendRAMEmail() {
-        try {
-
-        MimeMessage message = new MimeMessage(session);
-        message.setFrom(alertTarget);
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
-
-        message.setSubject("The RAM Usage value for your box is above the threshold limit.");
-        message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
-        Transport.send(message);
-    } catch (MessagingException mex) {
-        mex.printStackTrace();
-    }
-
-    }
-    public void sendUserEmail() {
-    try {
-
-        MimeMessage message = new MimeMessage(session);
-        message.setFrom(alertTarget);
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
-
-        message.setSubject("The User login time for your box is above the threshold limit.");
-        message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
-        Transport.send(message);
-    } catch (MessagingException mex) {
-        mex.printStackTrace();
-        }
-
-    }
-
-
+    //TODO This section is commented out so the driver does not attempt to send an alert while the email target and sender is not set up. check the read me document for details.
+    // lines 299-306 and 322-328 are commented out for the same reason.
+//    public void sendCPUEmail() {
+//        try {
+//            properties.setProperty("mail.smtp.host", "smtp.gmail.com");
+//            properties.setProperty("mail.smtp.port", "587");
+//            properties.setProperty("mail.smtp.auth", "true");
+//            properties.setProperty("mail.smtp.starttls.enable", "true");
+//
+//            MimeMessage message = new MimeMessage(session);
+//            message.setFrom(alertTarget);
+//            message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
+//
+//            message.setSubject("The CPU Usage value for your box is above the threshold limit.");
+//            message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
+//            Transport.send(message);
+//        } catch (MessagingException mex) {
+//            mex.printStackTrace();
+//        }
+//
+//    }
+//
+//    public void sendRAMEmail() {
+//        try {
+//            properties.setProperty("mail.smtp.host", "smtp.gmail.com");
+//            properties.setProperty("mail.smtp.port", "587");
+//            properties.setProperty("mail.smtp.auth", "true");
+//            properties.setProperty("mail.smtp.starttls.enable", "true");
+//
+//            MimeMessage message = new MimeMessage(session);
+//            message.setFrom(alertTarget);
+//            message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
+//
+//            message.setSubject("The RAM Usage value for your box is above the threshold limit.");
+//            message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
+//            Transport.send(message);
+//        } catch (MessagingException mex) {
+//            mex.printStackTrace();
+//        }
+//
+//    }
+//
+//    public void sendUserEmail() {
+//        try {
+//            properties.setProperty("mail.smtp.host", "smtp.gmail.com");
+//            properties.setProperty("mail.smtp.port", "587");
+//            properties.setProperty("mail.smtp.auth", "true");
+//            properties.setProperty("mail.smtp.starttls.enable", "true");
+//
+//            MimeMessage message = new MimeMessage(session);
+//            message.setFrom(alertTarget);
+//            message.addRecipient(Message.RecipientType.TO, new InternetAddress(alertTarget));
+//
+//            message.setSubject("The User login time for your box is above the threshold limit.");
+//            message.setText("The node associated with this Alert Target Email Address has reached a value about the set threshold.");
+//            Transport.send(message);
+//        } catch (MessagingException mex) {
+//            mex.printStackTrace();
+//        }
+//
+//    }
 
 
     public double setCpuVal() {
-        double cpuLoad = processor.getSystemCpuLoad(1500)*100;
+        double cpuLoad = processor.getSystemCpuLoad(1500) * 100;
 
         return cpuLoad;
 
     }
-
 
 
     @Override
@@ -229,7 +239,6 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 
 
         boolean processSets = true;
-
 
 
         long lastSetTimeMillis = System.currentTimeMillis();
@@ -261,19 +270,63 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
                 }
 
                 ++setCount;
-                String cpuFormat = "System CPU Load: %.2f%%\n"+ setCpuVal();
+                String cpuFormat = "System CPU Load: %.2f%%\n" + setCpuVal();
 
                 double timestamp = System.currentTimeMillis() / 1000d;
 
 
-                parentSensor.getLogger().trace(String.format(String.valueOf(timestamp),cpuFormat));
+                parentSensor.getLogger().trace(String.format(String.valueOf(timestamp), cpuFormat));
+                String Memory2 = String.valueOf(hal.getMemory());
+                String[] memoryUBStr = Memory2.split(" ");
+
+                float memoryVal1 = Float.parseFloat(memoryUBStr[1]);
+                String[] memoryBStr2 = memoryUBStr[2].split("/");
+                float memoryVal2 = Float.parseFloat(memoryBStr2[1]);
 
 
-
+                float memoryValUsage = memoryVal2 - memoryVal1;
+                float RAMAlertVal = (memoryValUsage / memoryVal2) * 100;
 
 
                 dataBlock.setDoubleValue(0, timestamp);
                 dataBlock.setStringValue(1, cpuFormat);
+                dataBlock.setStringValue(2, Memory2);
+//UB and B stand for UnBroken and Broken respectively.
+                String cpuAlertUBStr = dataBlock.getStringValue(1);
+                String cpuAlertBStr = cpuAlertUBStr.split("\n")[1];
+                double cpuAlertVal = Double.parseDouble(cpuAlertBStr);
+
+
+//                if (!CPUemailSent) {
+//
+//                    if (cpuAlertVal >= 75.00) {
+////                        sendCPUEmail();
+//                        CPUemailSent = true;
+//
+//                    }
+//                }
+
+//              This is currently commented out b/c it's threshold value is not yet implemented
+
+//                if (userEmailSent =! true){
+//                    if (userAlertVal >= 75.00) {
+//                        sendCPUEmail();
+//                        userEmailSent = true;
+//
+//                    }
+//                }
+
+
+
+
+
+//                if (!RAMemailSent){
+//                    if (RAMAlertVal >= 75.00) {
+//                        sendRAMEmail();
+//                        RAMemailSent = true;
+//
+//                    }
+//                }
 
                 latestRecord = dataBlock;
 

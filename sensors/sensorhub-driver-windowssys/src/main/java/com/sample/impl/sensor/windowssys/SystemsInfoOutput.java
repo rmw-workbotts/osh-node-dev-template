@@ -93,7 +93,7 @@ public class SystemsInfoOutput extends AbstractSensorOutput<SystemsInfoSensor> i
                         .uomCode("GB")
                         .description("Total Amount of Memory available to the the JVM at time of call")
                 )
-                .addField("ramMUsage", sweFactory.createText()
+                .addField("ramUsage", sweFactory.createText()
 
                         .label("Ram Usage")
 

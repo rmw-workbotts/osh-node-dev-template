@@ -17,7 +17,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-
 public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private static final String USER_SENSOR_OUTPUT_NAME = "User Systems info";
     private static final String SENSOR_OUTPUT_LABEL = "User Systems info";
@@ -28,18 +27,17 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private final Object histogramLock = new Object();
     Timer timer = new Timer();
     TimerTask timerTask;
+    boolean userAboveTimeThreshold = false;
 
 
     SystemInfo si = new SystemInfo();
     OperatingSystem os = si.getOperatingSystem();
 
 
-
     private final Object processingLock = new Object();
 
     private DataRecord dataStruct;
     private DataEncoding dataEncoding;
-
 
 
     UserOutput(SystemsInfoSensor parentSystemsInfoSensor) {
@@ -118,6 +116,22 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     }
 
     private void initSamplingTime() {
+    }
+
+    private void determineTimeThreshold() {
+        int userCount = os.getSessions().size();
+        int j = 0;
+        for (int i = 0; i < userCount; i++) {
+
+            String[] currentUser = String.valueOf(os.getSessions()).split(",");
+
+
+            String userName = String.valueOf(currentUser[0 + j]);
+            String loginStatus = String.valueOf(currentUser[2 + j]);
+
+        }
+
+
     }
 
 

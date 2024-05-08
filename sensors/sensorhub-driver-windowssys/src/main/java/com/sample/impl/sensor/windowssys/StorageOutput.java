@@ -27,17 +27,13 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     TimerTask timerTask;
 
 
-
-
     oshi.SystemInfo si = new oshi.SystemInfo();
-
 
 
     private final Object processingLock = new Object();
 
     private DataRecord dataStruct;
     private DataEncoding dataEncoding;
-
 
 
     StorageOutput(SystemsInfoSensor parentSystemsInfoSensor) {
@@ -185,6 +181,7 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
         getLogger().debug("Initializing Output Complete");
 
     }
+
     private void completeTask() {
         timerTask = new TimerTask() {
             @Override
@@ -212,54 +209,48 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
         int index = 0;
 
 
+        List<HWDiskStore> diskList = si.getHardware().getDiskStores();
 
 
+        defineRecordStructure();
 
 
+        int storageCount = si.getHardware().getDiskStores().size();
 
-                List<HWDiskStore> diskList = si.getHardware().getDiskStores();
+        dataStruct.setData(dataBlock);
 
+        dataBlock.setDoubleValue(index++, timestamp);
+        dataBlock.setIntValue(index++, storageCount);
 
-                defineRecordStructure();
-
-
-
-                int storageCount = si.getHardware().getDiskStores().size();
-
-                dataStruct.setData(dataBlock);
-
-                dataBlock.setDoubleValue(index++, timestamp);
-                dataBlock.setIntValue(index++, storageCount);
-
-                var diskStorageArray = ((DataArrayImpl) dataStruct.getComponent("diskStorageArray"));
-                diskStorageArray.updateSize();
-                dataBlock.updateAtomCount();
+        var diskStorageArray = ((DataArrayImpl) dataStruct.getComponent("diskStorageArray"));
+        diskStorageArray.updateSize();
+        dataBlock.updateAtomCount();
 
 
-                for (HWDiskStore disk : diskList) {
+        for (HWDiskStore disk : diskList) {
 
 
-                    String modelName = disk.getModel();
-                    String diskName = disk.getName();
-                    long diskSize = disk.getSize();
-                    long readSize = disk.getReads();
-                    long writeSize = disk.getWrites();
+            String modelName = disk.getModel();
+            String diskName = disk.getName();
+            long diskSize = disk.getSize();
+            long readSize = disk.getReads();
+            long writeSize = disk.getWrites();
 
-                    dataBlock.setStringValue(index++, modelName);
-                    dataBlock.setStringValue(index++, diskName);
-                    dataBlock.setLongValue(index++, diskSize);
-                    dataBlock.setLongValue(index++, readSize);
-                    dataBlock.setLongValue(index++, writeSize);
-                }
+            dataBlock.setStringValue(index++, modelName);
+            dataBlock.setStringValue(index++, diskName);
+            dataBlock.setLongValue(index++, diskSize);
+            dataBlock.setLongValue(index++, readSize);
+            dataBlock.setLongValue(index++, writeSize);
+        }
 
         latestRecord = dataBlock;
 
         latestRecordTime = System.currentTimeMillis();
 
         eventHandler.publish(new DataEvent(latestRecordTime, StorageOutput.this, dataBlock));
-            }
+    }
 
 
-        }
+}
 
 
