@@ -17,7 +17,7 @@ dependencies {
   implementation 'org.sensorhub:sensorhub-datastore-h2'
   implementation 'org.sensorhub:sensorhub-service-sweapi:' + oshCoreVersion
 //  implementation project(':sensorhub-driver-simulation')
- implementation project(':sensorhub-driver-windowssys')
+ implementation project(':sensorhub-driver-sysinfo')
   implementation 'org.sensorhub:sensorhub-service-consys:' + oshCoreVersion
 //  implementation project(':[storage-module-name]')
 //  implementation project(':[service-name]')

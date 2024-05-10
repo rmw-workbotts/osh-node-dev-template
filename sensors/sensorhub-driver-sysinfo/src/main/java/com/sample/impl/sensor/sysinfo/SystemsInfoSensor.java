@@ -8,9 +8,10 @@
  WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  for the specific language governing rights and limitations under the License.
 
- Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
+ Copyright (C) 2024 Botts Innovative Research, Inc. All Rights Reserved.
+
  ******************************* END LICENSE BLOCK ***************************/
-package com.sample.impl.sensor.windowssys;
+package com.sample.impl.sensor.sysinfo;
 
 import org.sensorhub.api.common.SensorHubException;
 import org.sensorhub.impl.module.ModuleRegistry;
@@ -20,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 //Currently requires java 8 or 11 due to external library dependency on oshi.
 
@@ -49,7 +49,7 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
         super.doInit();
 
         // Generate identifiers
-        generateUniqueID("urn:osh:sensor:windowssys", config.serialNumber);
+        generateUniqueID("urn:osh:sensor:sysinfo", config.serialNumber);
         generateXmlID("WINDOWS_SYSTEM_SENSOR", config.serialNumber);
 
         // Create and initialize output

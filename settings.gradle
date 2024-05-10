@@ -23,8 +23,8 @@ project(':sensorhub-test').projectDir = "$toolsDir/sensorhub-test" as File
 //include 'sensorhub-storage-h2'
 //project(':sensorhub-storage-h2').projectDir = "$persistenceDir/sensorhub-storage-h2" as File
 
-include 'sensorhub-driver-windowssys'
-project(':sensorhub-driver-windowssys').projectDir = "$rootDir/sensors/sensorhub-driver-windowssys" as File
+include 'sensorhub-driver-sysinfo'
+project(':sensorhub-driver-sysinfo').projectDir = "$rootDir/sensors/sensorhub-driver-sysinfo" as File
 
 // osh-services
 //include '[service-name]'

@@ -8,25 +8,14 @@
  WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  for the specific language governing rights and limitations under the License.
 
- Copyright (C) 2020-2021 Botts Innovative Research, Inc. All Rights Reserved.
+ Copyright (C) 2024 Botts Innovative Research, Inc. All Rights Reserved.
 
 ******************************* END LICENSE BLOCK ***************************/
-package com.sample.impl.sensor.windowssys;
+package com.sample.impl.sensor.sysinfo;
 
 import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.sensor.PositionConfig;
 import org.sensorhub.api.sensor.SensorConfig;
-import org.sensorhub.api.sensor.PositionConfig.LLALocation;
-import org.sensorhub.api.sensor.PositionConfig.EulerOrientation;
-
-import javax.lang.model.type.ArrayType;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-
-
 
 
 /**
