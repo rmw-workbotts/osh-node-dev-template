@@ -36,8 +36,9 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private static final int MAX_NUM_TIMING_SAMPLES = 10;
     private final long[] timingHistogram = new long[MAX_NUM_TIMING_SAMPLES];
     private final Object histogramLock = new Object();
-    Timer timer = new Timer();
+    Timer timerStorageOutput = new Timer();
     TimerTask timerTask;
+    boolean isRunning;
 
 
     oshi.SystemInfo si = new oshi.SystemInfo();
@@ -61,9 +62,14 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
 
         // Instantiate a new worker thread
 //        Runnable task =  this::run;
+        if (!isRunning) {
 
-        completeTask();
-//        timer.scheduleAtFixedRate(timerTask, 0, 10000);
+           completeTask();
+           System.out.println("Timertask started");
+
+        }
+
+
         System.out.println("Timertask started");
 
     }
@@ -104,9 +110,11 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
 
     public void doStop() {
 
-        if (timer != null) {
-            timer.cancel();
-            timer.purge();
+        if (isRunning) {
+            timerTask.cancel();
+            timerStorageOutput.cancel();
+            timerStorageOutput.purge();
+            isRunning = false;
 //            timerTask.cancel();
 
 
@@ -196,7 +204,9 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     }
 
     private void completeTask() {
+        timerStorageOutput = new Timer();
         timerTask = new TimerTask() {
+
             @Override
             public void run() {
                 synchronized (processingLock) {
@@ -209,7 +219,8 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
                 }
             }
         };
-        timer.scheduleAtFixedRate(timerTask, 0, 10000);
+        timerStorageOutput.scheduleAtFixedRate(timerTask, 0, 5000);
+        isRunning = true;
     }
 
     public void executeDataStruct() {
@@ -263,7 +274,9 @@ public class StorageOutput extends AbstractSensorOutput<SystemsInfoSensor> {
         eventHandler.publish(new DataEvent(latestRecordTime, StorageOutput.this, dataBlock));
     }
 
-
+    Timer getStorageOutputTimer() {
+        return timerStorageOutput;
+    }
 }
 
 

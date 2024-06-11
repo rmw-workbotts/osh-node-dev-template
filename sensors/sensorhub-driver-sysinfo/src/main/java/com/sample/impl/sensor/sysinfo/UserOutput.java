@@ -38,9 +38,10 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     private static final int MAX_NUM_TIMING_SAMPLES = 10;
     private final long[] timingHistogram = new long[MAX_NUM_TIMING_SAMPLES];
     private final Object histogramLock = new Object();
-    Timer timer = new Timer();
+    Timer timerUser = new Timer();
     TimerTask timerTask;
     boolean userAboveTimeThreshold = false;
+    boolean isRunning;
 
 
     SystemInfo si = new SystemInfo();
@@ -75,9 +76,13 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
 
     public void doStart() {
 
-        completeTask();
+        if(!isRunning) {
+
+            completeTask();
+            System.out.println("Timertask started");
+        }
 //        timer.scheduleAtFixedRate(timerTask, 0, 10000);
-        System.out.println("Timertask started");
+
 
     }
 
@@ -118,9 +123,13 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     //As it stands, I'm pretty sure this is causing the driver to be unable to restart from the admin panel if the sensor is stopped for any reason
     public void doStop() {
 
-        if (timer != null) {
-            timer.cancel();
-            timer.purge();
+        if (isRunning) {
+            timerTask.cancel();
+            timerUser.cancel();
+            timerUser.purge();
+            isRunning = false;
+
+//            timer.purge();
 //            timerTask.cancel();
             System.out.println("Timer task stopped");
         }
@@ -199,6 +208,7 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
     }
 
     private void completeTask() {
+        timerUser = new Timer();
         timerTask = new TimerTask() {
             @Override
             public void run() {
@@ -212,7 +222,8 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
                 }
             }
         };
-        timer.scheduleAtFixedRate(timerTask, 0, 10000);
+        timerUser.scheduleAtFixedRate(timerTask, 0, 5000);
+        isRunning = true;
     }
 
 
@@ -265,6 +276,12 @@ public class UserOutput extends AbstractSensorOutput<SystemsInfoSensor> {
 
 
     }
+
+
+     Timer getUserOutputTimer() {
+        return timerUser;
+    }
+
 }
 
 

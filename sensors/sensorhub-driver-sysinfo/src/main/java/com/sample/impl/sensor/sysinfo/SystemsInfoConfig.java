@@ -40,7 +40,7 @@ public class SystemsInfoConfig extends SensorConfig {
      */
     @DisplayInfo.Required
     @DisplayInfo(desc = "Serial number or unique identifier")
-    public String serialNumber = "sensor001";
+    public String serialNumber = ":sensor001";
     @DisplayInfo(desc="Camera geographic position")
     public PositionConfig position = new PositionConfig();
 //the driver is currently only set to send emails from gmail accounts.

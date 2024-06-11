@@ -29,10 +29,15 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
+import oshi.hardware.GlobalMemory;
+
+
+
 
 import javax.mail.*;
 
 
+import java.util.Objects;
 import java.util.Properties;
 /**
  * Configuration settings for the {@link SystemsInfoSensor} driver exposed via the OpenSensorHub Admin panel.
@@ -58,6 +63,7 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
     SystemInfo si = new SystemInfo();
     OperatingSystem os = si.getOperatingSystem();
     CentralProcessor processor = si.getHardware().getProcessor();
+
     HardwareAbstractionLayer hal = si.getHardware();
     Properties prop = new Properties();
 
@@ -109,14 +115,16 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
                 .label(SENSOR_OUTPUT_LABEL)
                 .description(SENSOR_OUTPUT_DESCRIPTION)
                 .addField("SampleTime", sweFactory.createTime().asSamplingTimeIsoUTC().build())
-                .addField("cpuUsage", sweFactory.createText()
+                .addField("cpuUsage", sweFactory.createQuantity()
+                        .definition(SWEHelper.getCfUri("CPU_Percent"))
                         .label("Percent Usage of CPU")
+                        .uomCode("")
                         .description("Percent Usage of the the CPU, Non-windows boxes may return above ")
                 )
-                .addField("ramUsage", sweFactory.createText()
-
+                .addField("ramUsage", sweFactory.createQuantity()
+                        .definition(SWEHelper.getCfUri("RAM_Percent"))
                         .label("Ram Usage")
-
+                        .uomCode("")
                         .description("OSHI HardwareLayer RAM use physical/available")
 
                 )
@@ -251,9 +259,13 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 //
 //    }
 
-
-    public double setCpuVal() {
-        double cpuLoad = processor.getSystemCpuLoad(1500) * 100;
+//TODO Set up logic to * by 20 only if the OS is Windows
+    public double setCpuVal() throws InterruptedException {
+//        double cpuLoad = processor.getSystemCpuLoad(1500) * 100;
+        long[] prevTicks = processor.getSystemCpuLoadTicks();
+        Thread.sleep(4000);
+        long[] ticks = processor.getSystemCpuLoadTicks();
+        double cpuLoad = (processor.getSystemCpuLoadBetweenTicks(prevTicks)*100)*20;
 
         return cpuLoad;
 
@@ -301,31 +313,41 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
                 double timestamp = System.currentTimeMillis() / 1000d;
 
 
-                parentSensor.getLogger().trace(String.format(String.valueOf(timestamp), cpuFormat));
+                parentSensor.getLogger().trace(String.valueOf(timestamp), cpuFormat);
                 String Memory2 = String.valueOf(hal.getMemory());
                 String[] memoryUBStr = Memory2.split(" ");
 
                 float memoryVal1 = Float.parseFloat(memoryUBStr[1]);
                 String[] memoryBStr2 = memoryUBStr[2].split("/");
                 float memoryVal2 = Float.parseFloat(memoryBStr2[1]);
+                GlobalMemory memory = hal.getMemory();
+                long totalMemory = memory.getTotal();
+
+                long availableMemory = memory.getAvailable();
+                long usedMemory = (totalMemory-availableMemory);
+                double percentMemory = ((double)usedMemory / totalMemory)* 100;
 
 
                 float memoryValUsage = memoryVal2 - memoryVal1;
-                float RAMAlertVal = (memoryValUsage / memoryVal2) * 100;
+                float ramAlertVal = (memoryValUsage / memoryVal2) * 100;
+                //UB and B stand for UnBroken and Broken respectively.
+
+                String cpuAlertBStr = cpuFormat.split("\n")[1];
+                double cpuAlertVal = Double.parseDouble(cpuAlertBStr);
+
+                memory = si.getHardware().getMemory();
 
 
                 dataBlock.setDoubleValue(0, timestamp);
-                dataBlock.setStringValue(1, cpuFormat);
-                dataBlock.setStringValue(2, Memory2);
-//UB and B stand for UnBroken and Broken respectively.
-                String cpuAlertUBStr = dataBlock.getStringValue(1);
-                String cpuAlertBStr = cpuAlertUBStr.split("\n")[1];
-                double cpuAlertVal = Double.parseDouble(cpuAlertBStr);
+                dataBlock.setDoubleValue(1, setCpuVal());
+
+
+                dataBlock.setDoubleValue(2, percentMemory);
 
 
 //                if (!CPUemailSent) {
 //
-//                    if (cpuAlertVal >= 75.00) {
+//                    if (setCpuVal() >= 75.00) {
 ////                        sendCPUEmail();
 //                        CPUemailSent = true;
 //
@@ -343,11 +365,8 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 //                }
 
 
-
-
-
 //                if (!RAMemailSent){
-//                    if (RAMAlertVal >= 75.00) {
+//                    if (percentMemory >= 75.00) {
 //                        sendRAMEmail();
 //                        RAMemailSent = true;
 //

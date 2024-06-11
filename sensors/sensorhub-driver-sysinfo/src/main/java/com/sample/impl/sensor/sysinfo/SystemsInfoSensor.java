@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Timer;
 
 //Currently requires java 8 or 11 due to external library dependency on oshi.
 
@@ -41,6 +42,7 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
     SystemsPhysicalSensor output5;
     SOSService commService = new SOSService();
     public boolean ConfigPresent;
+
 
 
     @Override
@@ -158,6 +160,9 @@ public class SystemsInfoSensor extends AbstractSensorModule<SystemsInfoConfig> {
         aliveQuery.add(output5.isAlive());
         if (!aliveQuery.contains(false)) {
             return false;
+
+
+
         } else {
             return true;
 
