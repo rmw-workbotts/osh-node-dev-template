@@ -226,7 +226,7 @@
   },
   {
     "objClass": "com.sample.impl.sensor.sysinfo.SystemsInfoConfig",
-    "serialNumber": "sensor001",
+    "serialNumber": ":sensor001",
     "position": {
       "objClass": "org.sensorhub.api.sensor.PositionConfig",
       "location": {
@@ -242,6 +242,9 @@
         "roll": 0.0
       }
     },
+    "lat": 0.0,
+    "lon": 0.0,
+    "alt": 0.0,
     "lastUpdated": "2024-03-15T15:23:37.758-0500",
     "id": "d41f7ff4-2322-4f38-9610-d083174d7407",
     "moduleClass": "com.sample.impl.sensor.sysinfo.SystemsInfoSensor",

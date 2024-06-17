@@ -32,6 +32,14 @@ import oshi.software.os.OperatingSystem;
 import oshi.hardware.GlobalMemory;
 
 
+import com.sun.jna.platform.win32.Pdh;
+import com.sun.jna.platform.win32.PdhMsg;
+import com.sun.jna.platform.win32.PdhUtil.PdhEnumObjectItems;
+import com.sun.jna.platform.win32.WinError;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+
+
 
 
 import javax.mail.*;
@@ -85,7 +93,7 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
     String alertTarget = SystemsInfoConfig.alertTarget;
     String alertSender = SystemsInfoConfig.alertSender;
     //TODO Set these values to passkey for google mail as described in readme document
-    Session session = Session.getInstance(properties, new javax.mail.Authenticator() {
+    Session session = Session.getInstance(properties, new Authenticator() {
         protected PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication(alertSender, "google mail pass key here");
         }
@@ -259,17 +267,27 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
 //
 //    }
 
-//TODO Set up logic to * by 20 only if the OS is Windows
+//TODO The determination for windows cpu usage here is not based on any coherent logic, it is
+    //TODO based on a plot of the time manager spu usage against different formulas, and this was the
+    //TODO closest of those tested. This is not desirable, but still the most accurate
+    //TODO means currently found.
     public double setCpuVal() throws InterruptedException {
 //        double cpuLoad = processor.getSystemCpuLoad(1500) * 100;
+        double cpuLoad = 0;
         long[] prevTicks = processor.getSystemCpuLoadTicks();
-        Thread.sleep(4000);
+        Thread.sleep(2000);
         long[] ticks = processor.getSystemCpuLoadTicks();
-        double cpuLoad = (processor.getSystemCpuLoadBetweenTicks(prevTicks)*100)*20;
+        if ((String.valueOf(si.getOperatingSystem()).contains("Windows"))) {
+            cpuLoad = ((processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100) *(processor.getPhysicalProcessorCount()))/2;
+            System.out.printf("CPU Usage: %.2f%%\n", cpuLoad);
+        }
+        else {
+            cpuLoad = (processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100); }
 
         return cpuLoad;
 
     }
+
 
 
     @Override
