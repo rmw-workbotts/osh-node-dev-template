@@ -14,8 +14,8 @@ dependencies {
     implementation 'com.github.pires:obd-java-api:1.0'
     implementation 'com.sun.mail:javax.mail:1.6.2'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
-    implementation 'net.java.dev.jna:jna:5.14.0'
-    implementation 'net.java.dev.jna:jna-platform:5.14.0'
+    implementation 'net.java.dev.jna:jna:5.8.0'
+
 }
 
 

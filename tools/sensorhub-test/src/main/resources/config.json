@@ -1,7 +1,7 @@
 [
   {
     "objClass": "org.sensorhub.impl.service.HttpServerConfig",
-    "httpPort": 8283,
+    "httpPort": 8282,
     "httpsPort": 0,
     "staticDocsRootUrl": "/",
     "staticDocsRootDir": "web",
@@ -231,8 +231,8 @@
       "objClass": "org.sensorhub.api.sensor.PositionConfig",
       "location": {
         "objClass": "org.sensorhub.api.sensor.PositionConfig$LLALocation",
-        "lat": 33.495722,
-        "lon": 86.793111,
+        "lat": 33.52441450877697,
+        "lon": -86.77182446145112,
         "alt": 0.0
       },
       "orientation": {
@@ -242,9 +242,6 @@
         "roll": 0.0
       }
     },
-    "lat": 0.0,
-    "lon": 0.0,
-    "alt": 0.0,
     "lastUpdated": "2024-03-15T15:23:37.758-0500",
     "id": "d41f7ff4-2322-4f38-9610-d083174d7407",
     "moduleClass": "com.sample.impl.sensor.sysinfo.SystemsInfoSensor",

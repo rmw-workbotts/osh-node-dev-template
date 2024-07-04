@@ -279,7 +279,7 @@ public class Alerts extends AbstractSensorOutput<SystemsInfoSensor> implements R
         long[] ticks = processor.getSystemCpuLoadTicks();
         if ((String.valueOf(si.getOperatingSystem()).contains("Windows"))) {
             cpuLoad = ((processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100) *(processor.getPhysicalProcessorCount()))/2;
-            System.out.printf("CPU Usage: %.2f%%\n", cpuLoad);
+
         }
         else {
             cpuLoad = (processor.getSystemCpuLoadBetweenTicks(prevTicks) * 100); }

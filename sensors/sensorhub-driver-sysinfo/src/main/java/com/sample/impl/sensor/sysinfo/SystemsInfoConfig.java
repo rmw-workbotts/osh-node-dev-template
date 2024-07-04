@@ -16,6 +16,13 @@ package com.sample.impl.sensor.sysinfo;
 import org.sensorhub.api.config.DisplayInfo;
 import org.sensorhub.api.sensor.PositionConfig;
 import org.sensorhub.api.sensor.SensorConfig;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -47,17 +54,12 @@ public class SystemsInfoConfig extends SensorConfig {
     public static String alertTarget = "targetemailhere";
     public static String alertSender = "sendingemailhere";
 
-    double lat;
-    double lon;
-    double alt;
 
     public SystemsInfoConfig() throws NoSuchFieldException {
     }
-
-
-
-
-    public PositionConfig.LLALocation getLocation(){ return position.location;}
+    public PositionConfig.LLALocation getLocation(){
+        return (position.location);
+    }
 
 
 
